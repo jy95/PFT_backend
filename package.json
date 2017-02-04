@@ -4,7 +4,7 @@
   "description": "backend part of PFT project",
   "main": "server.js",
   "scripts": {
-    "test": "mocha test/test.js",
+    "test": "node node_modules/mocha/bin/_mocha test/test.js",
     "cover": "istanbul cover node_modules/mocha/bin/_mocha -- -R spec test/test.js",
     "startServer": "node launch-server.js"
   },

@@ -18,16 +18,18 @@ variables:
   POSTGRES_USER: custom_user
   POSTGRES_PASSWORD: custom_pass
 
+# Cache Settings
+cache:
+  paths:
+   - node_modules/
+
 # Job: Build
 # Installs npm packages
-# Passes node_modules/, dist/ onto next steps using artifacts
+
 build:
   stage: build
   script:
     - npm install --only=dev
-  artifacts:
-    paths:
-      - node_modules/
 
 connect:
   image: postgres
@@ -35,7 +37,7 @@ connect:
   script:
   # official way to provide password to psql: http://www.postgresql.org/docs/9.3/static/libpq-envars.html
   - export PGPASSWORD=$POSTGRES_PASSWORD
-  - psql -h "postgres" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "SELECT 'OK' AS status;"
+  - psql -h "postgres" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f db/db_initialization.sql
 
 # Job: Test
 # Run tests against our application

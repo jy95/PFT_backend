@@ -1,0 +1,31 @@
+{
+  "name": "pft_backend",
+  "version": "1.0.0",
+  "description": "backend part of PFT project",
+  "main": "server.js",
+  "scripts": {
+    "test": "mocha test/test.js",
+    "cover": "istanbul cover node_modules/mocha/bin/_mocha -- -R spec test/test.js",
+    "startServer": "node launch-server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://git.edlsf.cloud/root/PFT_backend.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bluebird": "^3.4.7",
+    "body-parser": "^1.16.0",
+    "debug": "^2.6.0",
+    "dotenv": "^4.0.0",
+    "express": "^4.14.1",
+    "morgan": "^1.7.0",
+    "pg-promise": "^5.5.6"
+  },
+  "devDependencies": {
+    "istanbul": "^0.4.5",
+    "mocha": "^3.2.0",
+    "mocha-lcov-reporter": "^1.2.0"
+  }
+}

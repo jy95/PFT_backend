@@ -8,11 +8,11 @@ let options = {
 let pgp = require('pg-promise')(options);
 
 let connectionOptions = {
-    host: process.env.DB_TFE_HOST,
-    port: process.env.DB_TFE_PORT,
-    database: process.env.DB_TFE_DB,
-    user: process.env.DB_TFE_USER,
-    password: process.env.DB_TFE_PASS
+    host: process.env.DB_TFE_HOST || "localhost",
+    port: process.env.DB_TFE_PORT || 5432,
+    database: process.env.DB_TFE_DB || "custom_db",
+    user: process.env.DB_TFE_USER || "custom_user",
+    password: process.env.DB_TFE_PASS || "custom_pass"
 };
 
 let db = pgp(connectionOptions);

@@ -28,8 +28,6 @@ build:
   artifacts:
     paths:
       - node_modules/
-  tags:
-    - docker
 
 connect:
   image: postgres

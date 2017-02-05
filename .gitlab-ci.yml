@@ -6,10 +6,8 @@ image: node:6.9.5
 services:
       - postgres:9.3.15
 
-# Build - Build necessary JS files
 # Test - Run tests
 stages:
-  - build
   - test
 # Configuration
 variables:
@@ -23,17 +21,6 @@ cache:
   paths:
    - node_modules/
 
-# Job: Build
-# Installs npm packages
-# Passes node_modules/ onto next steps using artifacts
-build:
-  stage: build
-  script:
-    - npm install --only=dev
-  artifacts:
-      paths:
-        - node_modules/
-
 # Job: Connect
 # Create a database and inject sql queries from file
 connect:
@@ -45,8 +32,10 @@ connect:
   - psql -h "postgres" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f db/db_initialization.sql
 
 # Job: Test
+# Installs npm packages
 # Run tests against our application
 test:
   stage: test
   script:
+    - npm install --only=dev
     - npm test

@@ -25,12 +25,17 @@ cache:
 
 # Job: Build
 # Installs npm packages
-
+# Passes node_modules/ onto next steps using artifacts
 build:
   stage: build
   script:
     - npm install --only=dev
+  artifacts:
+      paths:
+        - node_modules/
 
+# Job: Connect
+# Create a database and inject sql queries from file
 connect:
   image: postgres
   stage: test

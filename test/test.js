@@ -12,6 +12,8 @@ describe('Server tests : ' , function () {
                 done();
             } catch (e) {
                 console.error("Server is not found");
+                console.error("Message : " + e.message);
+                console.error("Dossier courant : " + __dirname);
                 process.exit(e.code);
             }
 

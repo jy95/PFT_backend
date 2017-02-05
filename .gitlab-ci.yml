@@ -16,11 +16,6 @@ variables:
   POSTGRES_USER: custom_user
   POSTGRES_PASSWORD: custom_pass
 
-# Cache Settings
-cache:
-  paths:
-   - node_modules/
-
 # Job: Connect
 # Create a database and inject sql queries from file
 connect:
@@ -39,3 +34,7 @@ test:
   script:
     - npm install --only=dev
     - npm test
+  # Cache Settings
+  cache:
+    paths:
+     - node_modules/

@@ -1,3 +1,6 @@
+const request = require('supertest');
+let app;
+
 describe('Server tests : ' , function () {
 
     describe('Create and connect to a Server : ', function () {
@@ -7,8 +10,8 @@ describe('Server tests : ' , function () {
             // I don't how much time It takes
 
             try {
-                require.resolve("../launch-server.js");
-                require('../launch-server.js');
+                require.resolve("../server.js");
+                app = require('../server.js');
                 done();
             } catch (e) {
                 console.error("Server is not found");
@@ -18,5 +21,16 @@ describe('Server tests : ' , function () {
             }
 
         });
-    })
+    });
+
+    describe('API tests:', function () {
+        // A corriger quand on aura des données digne de ce nom
+        it('Example : /api/puppies - here 500', function(done) {
+            request(app)
+                .get('/api/puppies')
+                .set('Accept', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(500, done);
+        });
+    });
 });

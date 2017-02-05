@@ -1,1 +1,6 @@
-SELECT 'OK' AS status;
+-- DANS LA CONSOLE DE LA DB postgresql
+CREATE USER custom_user WITH PASSWORD 'custom_pass';
+CREATE DATABASE custom_db OWNER custom_user;
+-- DANS LA CONSOLE DE CETTE DB
+CREATE SCHEMA TFE
+-- REMPLIR LA DB ^^

@@ -87,5 +87,17 @@ describe('Server tests : ' , function () {
             done();
         });
 
+        it("scriptGenerator : Claroline.js", function (done) {
+            done();
+        });
+
+        it("scriptGenerator : Windows.js", function (done) {
+            done();
+        });
+
+        it("scriptGenerator : Nutrilog.js", function (done) {
+            done();
+        });
+
     });
 });

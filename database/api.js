@@ -136,9 +136,9 @@ function registerStudents(req, res, next) {
     }
     // nom dans form
     sampleFile = req.files.csvFile;
-
+    let content = sampleFile.data.toString('ascii');
     csv
-        .fromString(sampleFile.data.toString())
+        .fromString(content)
         .on('json', (jsonObj) => {
             // combine csv header row and csv line to a json object
 

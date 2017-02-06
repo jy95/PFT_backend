@@ -1,13 +1,17 @@
 let express = require('express');
 let bodyParser = require('body-parser');
+let cookieParser = require('cookie-parser');
 let logger = require('morgan');
 
 let routes = require('./routes/routes.js');
 
 let app = express();
 
+const SECRET =  process.env.SECRET_TOKEN || "dsoigsdgdsghdsgkds_fkgsdkuhfdh54644sdigshfhsdf";
+
 // middleware for express
 app.use(bodyParser.json());
+app.use(cookieParser(SECRET));
 app.use(logger('dev'));
 app.use('/', routes);
 

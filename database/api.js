@@ -1,4 +1,5 @@
 let promise = require('bluebird');
+let scriptManager = require("../script_manager/script_manager.js");
 
 let options = {
     // Initialization Options
@@ -17,47 +18,70 @@ let connectionOptions = {
 
 let db = pgp(connectionOptions);
 
-// J'ai laissé quelques exemples , histoire d'en avoir sous la main pour savoir comment utiliser cela
-function getAllPuppies(req, res, next) {
-    db.any('select * from pups')
+const cookieName = "SuperCookie";
+
+function signIn(req, res, next) {
+
+    db.one('SELECT id_user, user_type FROM Users u WHERE u.login = $1 AND u.admin_password = $2', [req.body.login, req.body.password])
         .then(function (data) {
-            res.status(200)
-                .json({
-                    status: 'success',
-                    data: data,
-                    message: 'Retrieved ALL puppies'
-                });
+
+            let options = {
+                maxAge: 1000 * 60 * 60, // would expire after 60 minutes
+                httpOnly: true, // The cookie only accessible by the web server
+                signed: true // Indicates if the cookie should be signed
+            };
+
+            let cookie = {USER_TYPE: data["user_type"], USER_ID: data.id};
+
+            // Set cookie
+            res.status(200).cookie(cookieName, cookie, options);
         })
         .catch(function (err) {
             return next(err);
         });
 }
 
-function getSinglePuppy(req, res, next) {
-    let pupID = parseInt(req.params.id);
-    db.one('select * from pups where id = $1', pupID)
+function scriptGenerator(req, res, next) {
+    let software = req.params.name;
+    db.many("SELECT * FROM XXX WHERE software = $1", software)
         .then(function (data) {
-            res.status(200)
-                .json({
-                    status: 'success',
-                    data: data,
-                    message: 'Retrieved ONE puppy'
-                });
+            scriptManager.handleRequest(data, software, function (err, filePath, fileName) {
+                if (err) {
+                    return next(err);
+                } else {
+                    res.download("../script_manager" + filePath, fileName);
+                }
+            });
         })
         .catch(function (err) {
             return next(err);
         });
 }
 
-function updatePuppy(req, res, next) {
-    db.none('update pups set name=$1, breed=$2, age=$3, sex=$4 where id=$5',
-        [req.body.name, req.body.breed, parseInt(req.body.age),
-            req.body.sex, parseInt(req.params.id)])
+function userloginsInfo(req, res, next) {
+    let userId = parseInt(req.params.id);
+    db.many("SELECT * FROM Users.access u WHERE u.id_user = $1", userId)
+        .then(function (data) {
+            res.status(200).json({
+                status: 'success',
+                data: data,
+                message: 'GET YOUR DATA NOW'
+            });
+        })
+        .catch(function (err) {
+            return next(err);
+        });
+}
+
+function addSoftware(req,res,next) {
+
+    db.none('insert into pups(name)' +
+        'values($1)', req.body.name)
         .then(function () {
             res.status(200)
                 .json({
                     status: 'success',
-                    message: 'Updated puppy'
+                    message: 'Inserted one software'
                 });
         })
         .catch(function (err) {
@@ -65,26 +89,44 @@ function updatePuppy(req, res, next) {
         });
 }
 
-function removePuppy(req, res, next) {
-    let pupID = parseInt(req.params.id);
-    db.result('delete from pups where id = $1', pupID)
+function removeSoftware(req, res, next) {
+    db.result('delete from sofware where id = $1', parseInt(req.body.id))
         .then(function (result) {
-            /* jshint ignore:start */
+
             res.status(200)
                 .json({
                     status: 'success',
-                    message: `Removed ${result.rowCount} puppy`
+                    message: `Removed ${result.rowCount} sofware`
                 });
-            /* jshint ignore:end */
+
         })
         .catch(function (err) {
             return next(err);
         });
 }
 
+function updateSoftware(req, res, next) {
+
+    db.none('update software set name=$1 where id=$2',
+        [req.body.name, parseInt(req.body.id)])
+        .then(function () {
+            res.status(200)
+                .json({
+                    status: 'success',
+                    message: 'Updated software'
+                });
+        })
+        .catch(function (err) {
+            return next(err);
+        });
+
+}
+
 module.exports = {
-    getAllPuppies: getAllPuppies,
-    getSinglePuppy: getSinglePuppy,
-    updatePuppy: updatePuppy,
-    removePuppy: removePuppy
+    signIn: signIn,
+    scriptGenerator: scriptGenerator,
+    userloginsInfo: userloginsInfo,
+    updateSoftware: updateSoftware,
+    removeSoftware: removeSoftware,
+    addSoftware: addSoftware
 };

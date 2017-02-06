@@ -1,12 +1,13 @@
 let express = require('express');
 let router = express.Router();
 
-let db = require('../database/api.js');
+let api = require('../database/api.js');
 
-router.get('/api/puppies', db.getAllPuppies);
-router.get('/api/puppies/:id', db.getSinglePuppy);
-router.put('/api/puppies/:id', db.updatePuppy);
-router.delete('/api/puppies/:id', db.removePuppy);
-
+router.put('/api/signIn', api.signIn);
+router.get('/api/scriptGenerator/:name', api.scriptGenerator);
+router.get('/api/UserloginsInfo/:id', api.userloginsInfo);
+router.put('/api/addSoftware', api.addSoftware);
+router.put('/api/removeSoftware', api.removeSoftware);
+router.put('/api/updateSoftware', api.updateSoftware);
 
 module.exports = router;

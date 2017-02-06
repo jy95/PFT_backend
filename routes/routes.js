@@ -1,7 +1,7 @@
 let express = require('express');
 let router = express.Router();
 
-let db = require('../db/queries.js');
+let db = require('../database/api.js');
 
 router.get('/api/puppies', db.getAllPuppies);
 router.get('/api/puppies/:id', db.getSinglePuppy);

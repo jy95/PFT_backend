@@ -126,6 +126,7 @@ function updateSoftware(req, res, next) {
 function registerStudents(req, res, next) {
     let sampleFile;
 
+
     if (!req.files) {
         return next(new Error('No files were uploaded.'));
     }

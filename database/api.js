@@ -136,14 +136,12 @@ function registerStudents(req, res, next) {
     }
     // nom dans form
     sampleFile = req.files.csvFile;
-
     let content = sampleFile.data.toString();
 
-    csv
-        .fromString(content)
+    csv().fromString(content)
         .on('json', (jsonObj) => {
-            // combine csv header row and csv line to a json object
 
+            // combine csv header row and csv line to a json object
             db.none('insert into TFE.users(matricule,name,first_name,id_year,id_profile,email,user_type)' +
                 'values($1,$2,$3,$4,$5,$6,$7)', [jsonObj["Matric Info"], jsonObj["Nom Etudiant"], jsonObj["Prénom Etudiant"], jsonObj["Année"], jsonObj["Orientation"], jsonObj["EMail Etudiant 2"], "STUDENT"])
                 .then(function () {
@@ -163,6 +161,7 @@ function registerStudents(req, res, next) {
                 });
         })
         .on('error', (err) => {
+            console.log(err);
             return next(err);
         })
 

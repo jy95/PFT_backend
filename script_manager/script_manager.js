@@ -1,5 +1,5 @@
 
-module.export.handleRequest = function (data,sofwareName,callback) {
+module.exports.handleRequest = function (data,sofwareName,callback) {
 
     try {
         let path = "./script_login_" + sofwareName + ".js";

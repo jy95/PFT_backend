@@ -1,7 +1,7 @@
 let fs = require('fs');
 let generatePassword = require('password-generator');
 
-module.export.handleRequest = function (data, callback) {
+module.exports.handleRequest = function (data, callback) {
 
 
     let name = "scriptWindows.bat";

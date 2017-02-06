@@ -76,7 +76,7 @@ function userloginsInfo(req, res, next) {
 
 function addSoftware(req, res, next) {
 
-    db.none('insert into pups(name)' +
+    db.none('insert into Softwares(name)' +
         'values($1)', req.body.name)
         .then(function () {
             res.status(200)
@@ -126,7 +126,6 @@ function updateSoftware(req, res, next) {
 function registerStudents(req, res, next) {
     let sampleFile;
 
-
     if (!req.files) {
         return next(new Error('No files were uploaded.'));
     }
@@ -135,21 +134,69 @@ function registerStudents(req, res, next) {
 
     csv
         .fromString(sampleFile.data.toString())
-        .on('json',(jsonObj)=>{
+        .on('json', (jsonObj) => {
             // combine csv header row and csv line to a json object
-            // jsonObj.a ==> 1 or 4
+
+            db.none('insert into Users(tesChamps)' +
+                'values($1,$2,$3,$4,$5,$6)', [jsonObj["Matric Info"], jsonObj["Nom Etudiant"], jsonObj["Prénom Etudiant"], jsonObj["Année"], jsonObj["Orientation"], jsonObj["EMail Etudiant 2"]])
+                .then(function () {
+                    // NOTHING TO DO HERE
+                })
+                .catch(function (err) {
+                    return next(err);
+                });
+
         })
         .on('done', () => {
             //parsing finished
+            res.status(200)
+                .json({
+                    status: 'success',
+                    message: 'Registered all students DONE'
+                });
+        })
+        .on('error', (err) => {
+            return next(err);
         })
 
 }
 
 function createUserProfil(req, res, next) {
 
+    db.none('insert into laBonneTable(tesChamps)' +
+        'values($1,etc)', [req.body.name])
+        .then(function () {
+            res.status(200)
+                .json({
+                    status: 'success',
+                    message: 'Inserted one user profil'
+                });
+        })
+        .catch(function (err) {
+            return next(err);
+        });
+
 }
 
 function useUserProfilOnStudents(req, res, next) {
+
+    for (let studentId of req.params.studentIds) {
+
+        db.none('insert into laBonneTable(tesChamps)' +
+            'values($1,etc)', [parseInt(studentId), parseInt(req.params.userProfil)])
+            .then(function () {
+                // NOTHING TO DO HERE
+            })
+            .catch(function (err) {
+                return next(err);
+            });
+
+    }
+    res.status(200)
+        .json({
+            status: 'success',
+            message: 'Applied the user profil on users'
+        });
 
 }
 

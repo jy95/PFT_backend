@@ -3,7 +3,7 @@ CREATE USER custom_user WITH PASSWORD 'custom_pass';
 CREATE DATABASE custom_db OWNER custom_user;
 -- DANS LA CONSOLE DE CETTE DB
 CREATE SCHEMA TFE
--- REMPLIR LA DB ^^
+-- REMPLIR LA DB
 
 CREATE TABLE TFE.years_sections (
     id_year_section SERIAL NOT NULL,
@@ -97,5 +97,19 @@ INSERT INTO TFE.profiles_softwares VALUES (DEFAULT, 2, 2);
 INSERT INTO TFE.profiles_softwares VALUES (DEFAULT, 2, 3);
 
 --users c'est ADMIN
-INSERT INTO TFE.users VALUES (DEFAULT, NULL, NULL, NULL, 'Admin', 'Ladministrateur', NULL, NULL, 'Admin', 'admin');
+INSERT INTO TFE.users VALUES (DEFAULT, NULL, NULL, NULL, 'Admin', 'Ladministrateur', 'Admin00', NULL, 'Admin', 'admin');
 
+--------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------PERMISSIONS----------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------
+
+GRANT CONNECT ON DATABASE custom_db TO custom_user;
+
+GRANT USAGE ON SCHEMA TFE TO custom_user;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA TFE TO custom_user;
+GRANT SELECT,INSERT,UPDATE ON TFE.users TO custom_user;
+GRANT SELECT ON TFE.years_sections TO custom_user;
+GRANT SELECT,INSERT,DELETE ON TFE.profiles TO custom_user;
+GRANT SELECT,INSERT,DELETE,UPDATE ON TFE.softwares TO custom_user;
+GRANT SELECT,INSERT,DELETE ON TFE.profiles_softwares TO custom_user;
+GRANT SELECT,INSERT,DELETE ON TFE.users_access TO custom_user;

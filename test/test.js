@@ -1,6 +1,7 @@
 const request = require('supertest');
 const assert = require('assert');
 let app;
+let token;
 
 describe('Server tests : ' , function () {
 
@@ -30,7 +31,7 @@ describe('Server tests : ' , function () {
             request(app)
                 .post('/api/signIn')
                 .set('Content-Type', 'application/x-www-form-urlencoded')
-                .send({ login: 'Admin' , password : 'admin' })
+                .send({ login: 'Admin00' , password : 'admin' })
                 .expect(200, done)
         });
 
@@ -83,7 +84,7 @@ describe('Server tests : ' , function () {
         });
 
         it('useUserProfilOnStudents', function (done) {
-
+            done();
         });
 
     });

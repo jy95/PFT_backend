@@ -50,7 +50,7 @@ function scriptGenerator(req, res, next) {
                 if (err) {
                     return next(err);
                 } else {
-                    res.download("../script_manager" + filePath, fileName);
+                    res.download(filePath, fileName);
                 }
             });
         })

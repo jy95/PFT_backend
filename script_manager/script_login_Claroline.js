@@ -17,7 +17,7 @@ module.exports.handleRequest = function (data, callback) {
 
         let csv = json2csv({data: newresult, fields: fields});
         let name = "scriptClaroline.csv";
-        let filePath = "/files/" + name;
+        let filePath = __dirname + "/files/" + name;
 
         fs.writeFile(filePath, csv, function (err) {
             if (err) {

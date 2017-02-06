@@ -8,7 +8,7 @@ module.exports.handleRequest = function (data, callback) {
         // à modifier quand je saurais
         let fields = ['idEtudiant', 'NomEtudiant', 'PrenomEtudiant','motDePasse'];
         let name = "scriptNutrilog.csv";
-        let filePath = "/files/" + name;
+        let filePath = __dirname + "/files/" + name;
 
         let newresult = data;
         for(let i=0;i<data.length;i++)

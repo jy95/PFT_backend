@@ -5,7 +5,7 @@ module.exports.handleRequest = function (data, callback) {
 
 
     let name = "scriptWindows.bat";
-    let filePath = "/files/" + name;
+    let filePath = __dirname + "/files/" + name;
 
     let file = "";
 

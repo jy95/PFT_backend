@@ -1,4 +1,5 @@
 const request = require('supertest');
+const assert = require('assert');
 let app;
 
 describe('Server tests : ' , function () {
@@ -24,13 +25,66 @@ describe('Server tests : ' , function () {
     });
 
     describe('API tests:', function () {
-        // A corriger quand on aura des données digne de ce nom
-        it('Example : /api/puppies - here 500', function(done) {
+
+        it('Admin connect', function(done) {
             request(app)
-                .get('/api/puppies')
-                .set('Accept', 'application/json')
-                .expect('Content-Type', /json/)
-                .expect(500, done);
+                .post('/api/signIn')
+                .set('Content-Type', 'application/x-www-form-urlencoded')
+                .send({ login: 'Admin' , password : 'admin' })
+                .expect(200, done)
         });
+
+        it('Create a software', function (done) {
+            request(app)
+                .post('/api/addSoftware')
+                .set('Content-Type', 'application/x-www-form-urlencoded')
+                .send({ name : 'BeliveInMe'})
+                .expect(200,done)
+        });
+
+        it('Change a software name', function (done) {
+            request(app)
+                .post('/api/updateSoftware')
+                .set('Content-Type', 'application/x-www-form-urlencoded')
+                .send({ name : 'Shinigami' , id : 4})
+                .expect(200,done)
+        });
+
+        it('Create another software', function (done) {
+            request(app)
+                .post('/api/addSoftware')
+                .set('Content-Type', 'application/x-www-form-urlencoded')
+                .send({ name : 'TOBEREMOVED'})
+                .expect(200,done)
+        });
+
+        it('Remove a software', function (done) {
+            request(app)
+                .post('/api/removeSoftware')
+                .set('Content-Type', 'application/x-www-form-urlencoded')
+                .send({id : 5})
+                .expect(200,done)
+        });
+
+        it('Register students', function (done) {
+            request(app)
+                .post('/api/registerStudents')
+                .attach('csvFile',__dirname + '/importEtudiants2017-01-29.csv')
+                .expect(200, done)
+        });
+
+        it('Create User Profil', function (done) {
+            // champs à setter bientôt
+           request(app)
+               .post('/api/createUserProfil')
+               .set('Content-Type', 'application/x-www-form-urlencoded')
+               .send({id : 4})
+               .expect(200,done)
+        });
+
+        it('useUserProfilOnStudents', function (done) {
+
+        });
+
     });
 });

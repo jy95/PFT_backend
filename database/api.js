@@ -130,7 +130,7 @@ function registerStudents(req, res, next) {
         return next(new Error('No files were uploaded.'));
     }
     // nom dans form
-    sampleFile = req.files.sampleFile;
+    sampleFile = req.files.csvFile;
 
     csv
         .fromString(sampleFile.data.toString())
@@ -180,10 +180,10 @@ function createUserProfil(req, res, next) {
 
 function useUserProfilOnStudents(req, res, next) {
 
-    for (let studentId of req.params.studentIds) {
+    for (let studentId of req.body.studentIds) {
 
         db.none('insert into laBonneTable(tesChamps)' +
-            'values($1,etc)', [parseInt(studentId), parseInt(req.params.userProfil)])
+            'values($1,etc)', [parseInt(studentId), parseInt(req.body.userProfil)])
             .then(function () {
                 // NOTHING TO DO HERE
             })

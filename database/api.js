@@ -1,5 +1,6 @@
 let promise = require('bluebird');
 let scriptManager = require("../script_manager/script_manager.js");
+const csv = require('csvtojson');
 
 let options = {
     // Initialization Options
@@ -73,7 +74,7 @@ function userloginsInfo(req, res, next) {
         });
 }
 
-function addSoftware(req,res,next) {
+function addSoftware(req, res, next) {
 
     db.none('insert into pups(name)' +
         'values($1)', req.body.name)
@@ -122,11 +123,43 @@ function updateSoftware(req, res, next) {
 
 }
 
+function registerStudents(req, res, next) {
+    let sampleFile;
+
+    if (!req.files) {
+        return next(new Error('No files were uploaded.'));
+    }
+    // nom dans form
+    sampleFile = req.files.sampleFile;
+
+    csv
+        .fromString(sampleFile.data.toString())
+        .on('json',(jsonObj)=>{
+            // combine csv header row and csv line to a json object
+            // jsonObj.a ==> 1 or 4
+        })
+        .on('done', () => {
+            //parsing finished
+        })
+
+}
+
+function createUserProfil(req, res, next) {
+
+}
+
+function useUserProfilOnStudents(req, res, next) {
+
+}
+
 module.exports = {
     signIn: signIn,
     scriptGenerator: scriptGenerator,
     userloginsInfo: userloginsInfo,
     updateSoftware: updateSoftware,
     removeSoftware: removeSoftware,
-    addSoftware: addSoftware
+    addSoftware: addSoftware,
+    registerStudents: registerStudents,
+    createUserProfil: createUserProfil,
+    useUserProfilOnStudents: useUserProfilOnStudents
 };

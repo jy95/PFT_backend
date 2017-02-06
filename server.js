@@ -2,6 +2,7 @@ let express = require('express');
 let bodyParser = require('body-parser');
 let cookieParser = require('cookie-parser');
 let logger = require('morgan');
+let fileUpload = require('express-fileupload');
 
 let routes = require('./routes/routes.js');
 
@@ -12,6 +13,7 @@ const SECRET =  process.env.SECRET_TOKEN || "dsoigsdgdsghdsgkds_fkgsdkuhfdh54644
 // middleware for express
 app.use(bodyParser.json());
 app.use(cookieParser(SECRET));
+app.use(fileUpload());
 app.use(logger('dev'));
 app.use('/', routes);
 

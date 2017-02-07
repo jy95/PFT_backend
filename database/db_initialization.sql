@@ -53,6 +53,7 @@ CREATE TABLE TFE.users_access (
     id_user INTEGER NOT NULL REFERENCES TFE.users(id_user),
     id_software INTEGER NOT NULL REFERENCES TFE.softwares(id_software),
     password VARCHAR(246) NOT NULL,
+    UNIQUE(id_user, id_software),
     PRIMARY KEY(id_user_access)
 );
 
@@ -99,6 +100,9 @@ INSERT INTO TFE.profiles_softwares VALUES (DEFAULT, 2, 3);
 
 --users c'est ADMIN
 INSERT INTO TFE.users VALUES (DEFAULT, NULL, NULL, NULL, 'Admin', 'Ladministrateur', 'Admin00', NULL, 'Admin', 'admin');
+-- des STUDENTS
+INSERT INTO TFE.users VALUES (DEFAULT, 3, 3, NULL, 'Tesla', 'Nikola', 'ntelsa', NULL, 'STUDENT', NULL); --en 1BIN
+INSERT INTO TFE.users VALUES (DEFAULT, 2, 2, NULL, 'Edison', 'Thomas', 'tedison', NULL, 'STUDENT', NULL);-- en 1BDI
 
 --les acces admin
 INSERT INTO TFE.users_access VALUES (DEFAULT, 1, 1, 'admin');

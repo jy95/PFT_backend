@@ -137,31 +137,38 @@ function registerStudents(req, res, next) {
     // nom dans form
     sampleFile = req.files.csvFile;
     let content = sampleFile.data.toString();
+    let csvContent = [];
 
     csv().fromString(content)
         .on('json', (jsonObj) => {
-
-            // combine csv header row and csv line to a json object
-            db.none('insert into TFE.users(matricule,name,first_name,id_year,id_profile,email,user_type)' +
-                'values($1,$2,$3,$4,$5,$6,$7)', [jsonObj["Matric Info"], jsonObj["Nom Etudiant"], jsonObj["Prénom Etudiant"], jsonObj["Année"], jsonObj["Orientation"], jsonObj["EMail Etudiant 2"], "STUDENT"])
-                .then(function () {
-                    // NOTHING TO DO HERE
-                })
-                .catch(function (err) {
-                    return next(err);
-                });
-
+            csvContent.push(jsonObj);
         })
         .on('done', () => {
-            //parsing finished
-            res.status(200)
-                .json({
-                    status: 'success',
-                    message: 'Registered all students'
+
+            db.tx(function (t) {
+                let queries = csvContent.map(function (l) {
+
+                    return t.one('SELECT id_year_section FROM TFE.years_sections WHERE section = $1 AND year = $2', [ l["Orientation"] , l["Année"] ])
+                        .then(function (result) {
+                            return t.none('insert into TFE.users(matricule,name,first_name,id_year,email,user_type)' +
+                                'values($1,$2,$3,$4,$5,$6)', [l["Matric Info"], l["Nom Etudiant"], l["Prénom Etudiant"], result.id_year_section, l["EMail Etudiant 2"], "STUDENT"]);
+                        });
                 });
+                return t.batch(queries);
+            }).spread(function (data) {
+                res.status(200)
+                    .json({
+                        status: 'success',
+                        message: 'Registered all students'
+                    });
+            }).catch(function (err) {
+                console.log("CONNARD");
+                console.log(err);
+                return next(err);
+            });
+
         })
         .on('error', (err) => {
-            console.log(err);
             return next(err);
         })
 
@@ -184,6 +191,7 @@ function createUserProfil(req, res, next) {
 
 }
 
+//TODO
 function useUserProfilOnStudents(req, res, next) {
 
 

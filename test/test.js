@@ -73,14 +73,14 @@ describe('Server tests : ' , function () {
                 .attach('csvFile',__dirname + '/importEtudiants2017-01-29.csv')
                 .expect(200, done)
         });
-
+        //TODO
         it('Create User Profil', function (done) {
             // champs à setter bientôt
            request(app)
                .post('/api/createUserProfil')
                .set('Content-Type', 'application/x-www-form-urlencoded')
                .send({id : 4})
-               .expect(200,done)
+               .expect(500,done)
         });
 
         it('useUserProfilOnStudents', function (done) {

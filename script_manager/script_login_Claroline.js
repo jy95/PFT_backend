@@ -1,21 +1,14 @@
 let json2csv = require('json2csv');
 let fs = require('fs');
-let generatePassword = require('password-generator');
+let db = require("../database/api.js");
 
 module.exports.handleRequest = function (data, callback) {
 
     try {
         // à modifier quand je saurais
-        let fields = ['NomEtudiant', 'PrenomEtudiant', 'email','emailEtudiant'];
-        //add a password to each users :
+        let fields = ['NomEtudiant', 'PrenomEtudiant','emailEtudiant','password'];
 
-        let newresult = data;
-        for(let i=0;i<data.length;i++)
-        {
-            newresult[i]['password'] = generatePassword();
-        }
-
-        let csv = json2csv({data: newresult, fields: fields});
+        let csv = json2csv({data: data, fields: fields});
         let name = "scriptClaroline.csv";
         let filePath = __dirname + "/files/" + name;
 

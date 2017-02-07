@@ -1,5 +1,5 @@
 let fs = require('fs');
-let generatePassword = require('password-generator');
+let db = require("../database/api.js");
 
 module.exports.handleRequest = function (data, callback) {
 
@@ -10,7 +10,7 @@ module.exports.handleRequest = function (data, callback) {
     let file = "";
 
     for (let line of data) {
-        file += "dsadd " + line.NomEtudiant + " /prenom=" + line.PrenomEtudiant + " /mdp=" + generatePassword() + " \n";
+        file += "dsadd " + line.NomEtudiant + " /prenom=" + line.PrenomEtudiant + " /mdp=" + line.password + " \n";
     }
 
     fs.writeFile(filePath, file, function (err) {

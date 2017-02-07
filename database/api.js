@@ -25,7 +25,10 @@ const secretToken = process.env.SECRET_TOKEN || "osfdotg654468fd_g,fsdnbvff";
 
 function signIn(req, res, next) {
 
-    db.one('SELECT id_user, user_type FROM TFE.users u WHERE u.login = $1 AND u.admin_password = $2', [req.body.login, req.body.password])
+    let login = req.body.login;
+    let password = req.body.password;
+
+    db.one('SELECT id_user, user_type FROM TFE.users u WHERE u.login = $1 AND u.admin_password = $2', [login,password])
         .then(function (data) {
 
             // if user is found and password is right
@@ -49,9 +52,30 @@ function signIn(req, res, next) {
 
 function scriptGenerator(req, res, next) {
     let software = req.params.name;
-    db.many("SELECT * FROM XXX WHERE software = $1", software)
-        .then(function (data) {
-            scriptManager.handleRequest(data, software, function (err, filePath, fileName) {
+    db.many("SELECT u.*, s.id_software, s.name FROM TFE.users u " +
+        "JOIN TFE.profiles p ON u.id_profile = p.id_profile " +
+        "JOIN TFE.profiles_softwares ps ON ps.id_profile = p.id_profile " +
+        "JOIN TFE.softwares s USING(id_software) " +
+        "WHERE s.name = $1 " +
+        "AND u.id_user NOT IN ( " +
+        " SELECT ua.id_user " +
+        "FROM TFE.users_access ua " +
+        "WHERE ua.id_software = s.id_software)", software)
+        .then(function (users) {
+
+            //add a password to each users :
+            let newresult = data;
+            for(let i=0;i<data.length;i++)
+            {
+                newresult[i]['password'] = generatePassword();
+            }
+
+            let queries = newresult.map(function (l) {
+                return db.none("INSERT TFE.users_access")
+            });
+
+
+            scriptManager.handleRequest(users, software, function (err, filePath, fileName) {
                 if (err) {
                     return next(err);
                 } else {
@@ -249,7 +273,7 @@ function listSoftwares(req, res, next) {
 
 }
 
-function listUsers(req,res,next) {
+function listUsers(req, res, next) {
     db.many("SELECT * FROM TFE.users")
         .then(function (data) {
             res.status(200)
@@ -259,11 +283,11 @@ function listUsers(req,res,next) {
                     data: data
                 });
         }).catch(function (err) {
-            return next(err);
-        });
+        return next(err);
+    });
 }
 
-function listProfils(req,res,next) {
+function listProfils(req, res, next) {
     db.many("SELECT * FROM TFE.profiles")
         .then(function (data) {
             res.status(200)

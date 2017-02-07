@@ -10,7 +10,7 @@ module.exports.handleRequest = function (data, callback) {
     let file = "";
 
     for (let line of data) {
-        file += "dsadd " + line.NomEtudiant + " /prenom=" + line.PrenomEtudiant + " /mdp=" + line.password + " \n";
+        file += "dsadd " + line.user_name + " /prenom=" + line.first_name + " /mdp=" + line.password + " \n";
     }
 
     fs.writeFile(filePath, file, function (err) {

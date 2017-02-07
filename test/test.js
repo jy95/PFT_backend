@@ -110,15 +110,21 @@ describe('Server tests : ', function () {
         });
 
         it("scriptGenerator : Claroline.js", function (done) {
-            done();
+            request(app)
+                .get("/api/scriptGenerator/Claroline")
+                .expect(200,done);
         });
 
         it("scriptGenerator : Windows.js", function (done) {
-            done();
+            request(app)
+                .get("/api/scriptGenerator/Windows")
+                .expect(200,done);
         });
 
         it("scriptGenerator : Nutrilog.js", function (done) {
-            done();
+            request(app)
+                .get("/api/scriptGenerator/Nutrilog")
+                .expect(200,done);
         });
 
     });

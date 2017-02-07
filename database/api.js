@@ -56,7 +56,7 @@ function scriptGenerator(req, res, next) {
     let newresult = [];
     db.tx(function (t) {
 
-        return t.many("SELECT u.*, s.id_software, s.name FROM TFE.users u " +
+        return t.many("SELECT u.id_user , u.first_name , u.name AS user_name, u.email , u.matricule , s.id_software, s.name AS software_name FROM TFE.users u " +
             "JOIN TFE.profiles p ON u.id_profile = p.id_profile " +
             "JOIN TFE.profiles_softwares ps ON ps.id_profile = p.id_profile " +
             "JOIN TFE.softwares s USING(id_software) " +
@@ -68,25 +68,28 @@ function scriptGenerator(req, res, next) {
             .then(function (users) {
 
                 //add a password to each users :
-                newresult = data;
-                for (let i = 0; i < data.length; i++) {
+                newresult = users;
+                for (let i = 0; i < users.length; i++) {
                     newresult[i]['password'] = generatePassword();
                 }
 
                 let queries = newresult.map(function (l) {
-                    return db.none("INSERT INTO TFE.users_access(id_user,id_software,password) VALUES($1,$2,$3)")
+                    return db.none("INSERT INTO TFE.users_access(id_user,id_software,password) VALUES($1,$2,$3)", [ l["id_user"], l["id_software"] , l["password"] ])
                 });
                 return t.batch(queries);
             })
     }).then(function () {
-        scriptManager.handleRequest(users, software, function (err, filePath, fileName) {
+        scriptManager.handleRequest(newresult, software, function (err, filePath, fileName) {
             if (err) {
+                console.log(err);
                 return next(err);
             } else {
                 res.download(filePath, fileName);
             }
         });
     }).catch(function (err) {
+        console.log(err);
+        err.code = 404;
         return next(err);
     });
 
@@ -184,18 +187,20 @@ function registerStudents(req, res, next) {
                         });
                 });
                 return t.batch(queries);
-            }).spread(function (data) {
+            }).then(function (data) {
                 res.status(200)
                     .json({
                         status: 'success',
                         message: 'Registered all students'
                     });
             }).catch(function (err) {
+                console.log(err);
                 return next(err);
             });
 
         })
         .on('error', (err) => {
+            err.code = 404;
             return next(err);
         })
 

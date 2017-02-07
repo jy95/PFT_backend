@@ -5,10 +5,11 @@ let db = require("../database/api.js");
 module.exports.handleRequest = function (data, callback) {
 
     try {
-        // à modifier quand je saurais
-        let fields = ['NomEtudiant', 'PrenomEtudiant','emailEtudiant','password'];
 
-        let csv = json2csv({data: data, fields: fields});
+        let fields = ['user_name', 'first_name','email','password'];
+        let fieldNames = ['NomEtudiant', 'PrenomEtudiant','emailEtudiant','motDePasse'];
+
+        let csv = json2csv({data: data, fields: fields , fieldNames: fieldNames});
         let name = "scriptClaroline.csv";
         let filePath = __dirname + "/files/" + name;
 

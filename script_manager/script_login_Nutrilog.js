@@ -6,10 +6,9 @@ module.exports.handleRequest = function (data, callback) {
 
     try {
         // à modifier quand je saurais
-        let fields = ['idEtudiant', 'NomEtudiant', 'PrenomEtudiant','password'];
+        let fields = ['matricule', 'user_name', 'first_name','password'];
         let name = "scriptNutrilog.csv";
         let filePath = __dirname + "/files/" + name;
-
 
         let csv = json2csv({data: data, fields: fields});
 

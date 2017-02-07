@@ -162,8 +162,6 @@ function registerStudents(req, res, next) {
                         message: 'Registered all students'
                     });
             }).catch(function (err) {
-                console.log("CONNARD");
-                console.log(err);
                 return next(err);
             });
 

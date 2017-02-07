@@ -206,7 +206,6 @@ function createUserProfil(req, res, next) {
     }
 }
 
-//TODO
 function useUserProfilOnStudents(req, res, next) {
 
     let id_profil = req.body.id_profil;
@@ -225,13 +224,57 @@ function useUserProfilOnStudents(req, res, next) {
             res.status(200)
                 .json({
                     status: 'success',
-                    message: 'Applied one user profil on user'
+                    message: 'Applied one user profil on user(s)'
                 });
         })
             .catch(function (err) {
                 return next(err);
             });
     }
+}
+
+function listSoftwares(req, res, next) {
+
+    db.many("SELECT * FROM TFE.softwares")
+        .then(function (data) {
+            res.status(200)
+                .json({
+                    status: 'success',
+                    message: 'Enjoy',
+                    data: data
+                });
+        }).catch(function (err) {
+        return next(err);
+    });
+
+}
+
+function listUsers(req,res,next) {
+    db.many("SELECT * FROM TFE.users")
+        .then(function (data) {
+            res.status(200)
+                .json({
+                    status: 'success',
+                    message: 'Enjoy',
+                    data: data
+                });
+        }).catch(function (err) {
+            return next(err);
+        });
+}
+
+function listProfils(req,res,next) {
+    db.many("SELECT * FROM TFE.profiles")
+        .then(function (data) {
+            res.status(200)
+                .json({
+                    status: 'success',
+                    message: 'Enjoy',
+                    data: data
+                });
+        }).catch(function (err) {
+        return next(err);
+    });
 }
 
 module.exports = {
@@ -243,5 +286,8 @@ module.exports = {
     addSoftware: addSoftware,
     registerStudents: registerStudents,
     createUserProfil: createUserProfil,
-    useUserProfilOnStudents: useUserProfilOnStudents
+    useUserProfilOnStudents: useUserProfilOnStudents,
+    listSoftwares: listSoftwares,
+    listUsers: listUsers,
+    listProfils: listProfils
 };

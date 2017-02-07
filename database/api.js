@@ -177,16 +177,10 @@ function createUserProfil(req, res, next) {
 
     let name = req.body.name;
     let id_year = (req.body.id_year == undefined) ? null : req.body.id_year;
-    let softwareList;
+    let softwareList = req.body.software;
 
-    try {
-        softwareList = JSON.parse(req.body.software);
-    } catch (err) {
-        return next(err);
-    }
-
-    if (softwareList === undefined) {
-        return next(err);
+    if (softwareList == undefined) {
+        return next(new Error("NO REQUIRED PARAM"));
     } else {
 
         db.tx(function (t) {
@@ -207,7 +201,6 @@ function createUserProfil(req, res, next) {
                     });
             })
             .catch(function (err) {
-                console.log(err);
                 return next(err);
             });
     }
@@ -216,34 +209,29 @@ function createUserProfil(req, res, next) {
 //TODO
 function useUserProfilOnStudents(req, res, next) {
 
+    let id_profil = req.body.id_profil;
+    let studentIds = req.body.studentIds;
 
-    for (let studentId of req.body.studentIds) {
+    if (studentIds == undefined) {
+        return next(new Error("NO REQUIRED PARAM"));
+    } else {
 
-        db.many("SELECT id_software FROM TFE.softwares WHERE id_software IN (SELECT id_software FROM TFE.profiles_softwares WHERE id_profile = $1)", parseInt(req.body.userProfil))
-            .then(function (data) {
-
-                db.none('insert into TFE.users_access(id_user,id_software,password)' +
-                    'values($1,$2,$3)', [parseInt(studentId), data["id_software"], generatePassword()])
-                    .then(function () {
-                        // NOTHING TO DO HERE
-                    })
-                    .catch(function (err) {
-                        return next(err);
-                    });
-
-            })
+        db.tx(function (t) {
+            let queries = studentIds.map(function (l) {
+                return db.none("UPDATE TFE.users SET id_profile = $1 WHERE id_user = $2", [parseInt(l), id_profil]);
+            });
+            t.batch(queries);
+        }).then(function (data) {
+            res.status(200)
+                .json({
+                    status: 'success',
+                    message: 'Applied one user profil on user'
+                });
+        })
             .catch(function (err) {
                 return next(err);
             });
-
     }
-    // IF NO PROBLEM
-    res.status(200)
-        .json({
-            status: 'success',
-            message: 'Applied the user profil on users'
-        });
-
 }
 
 module.exports = {

@@ -30,7 +30,7 @@ describe('Server tests : ' , function () {
         it('Admin connect', function(done) {
             request(app)
                 .post('/api/signIn')
-                .set('Content-Type', 'application/x-www-form-urlencoded')
+                .set('Content-Type', 'application/json')
                 .send({ login: 'Admin00' , password : 'admin' })
                 .expect(200, done)
         });
@@ -38,7 +38,7 @@ describe('Server tests : ' , function () {
         it('Create a software', function (done) {
             request(app)
                 .post('/api/addSoftware')
-                .set('Content-Type', 'application/x-www-form-urlencoded')
+                .set('Content-Type', 'application/json')
                 .send({ name : 'BeliveInMe'})
                 .expect(200,done)
         });
@@ -46,7 +46,7 @@ describe('Server tests : ' , function () {
         it('Change a software name', function (done) {
             request(app)
                 .post('/api/updateSoftware')
-                .set('Content-Type', 'application/x-www-form-urlencoded')
+                .set('Content-Type', 'application/json')
                 .send({ name : 'Shinigami' , id : 4})
                 .expect(200,done)
         });
@@ -54,7 +54,7 @@ describe('Server tests : ' , function () {
         it('Create another software', function (done) {
             request(app)
                 .post('/api/addSoftware')
-                .set('Content-Type', 'application/x-www-form-urlencoded')
+                .set('Content-Type', 'application/json')
                 .send({ name : 'TOBEREMOVED'})
                 .expect(200,done)
         });
@@ -62,7 +62,7 @@ describe('Server tests : ' , function () {
         it('Remove a software', function (done) {
             request(app)
                 .post('/api/removeSoftware')
-                .set('Content-Type', 'application/x-www-form-urlencoded')
+                .set('Content-Type', 'application/json')
                 .send({id : 5})
                 .expect(200,done)
         });
@@ -78,13 +78,17 @@ describe('Server tests : ' , function () {
             // champs à setter bientôt
             request(app)
                .post('/api/createUserProfil')
-               .set('Content-Type', 'application/x-www-form-urlencoded')
-               .send({name : "PROFIL TOURISTE", software : JSON.stringify([1,2])})
+               .set('Content-Type', 'application/json')
+               .send({name : "PROFIL TOURISTE", software : [1,2]})
                .expect(200,done)
         });
 
         it('useUserProfilOnStudents', function (done) {
-            done();
+            request(app)
+                .post("/api/useUserProfilOnStudents")
+                .set('Content-Type', 'application/json')
+                .send({ "id_profil" : 1 , studentIds : [1,2] })
+                .expect(200,done)
         });
 
         it("scriptGenerator : Claroline.js", function (done) {

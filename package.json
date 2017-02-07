@@ -19,6 +19,7 @@
     "bluebird": "^3.4.7",
     "body-parser": "^1.16.0",
     "cookie-parser": "^1.4.3",
+    "cors": "^2.8.1",
     "corser": "^2.0.1",
     "csvtojson": "^1.1.4",
     "debug": "^2.6.0",

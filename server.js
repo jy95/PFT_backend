@@ -3,7 +3,7 @@ let bodyParser = require('body-parser');
 let cookieParser = require('cookie-parser');
 let logger = require('morgan');
 let fileUpload = require('express-fileupload');
-let corser = require("corser");
+let cors = require('cors');
 
 let routes = require('./routes/routes.js');
 
@@ -12,11 +12,11 @@ let app = express();
 const SECRET =  process.env.SECRET_TOKEN || "dsoigsdgdsghdsgkds_fkgsdkuhfdh54644sdigshfhsdf";
 
 // middleware for express
+app.use(cors());
 app.use(bodyParser.json());
 app.use(cookieParser(SECRET));
 app.use(fileUpload());
 app.use(logger('dev'));
-app.use(corser.create());
 app.use('/', routes);
 
 // catch 404 and forward to error handler

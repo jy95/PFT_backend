@@ -31,7 +31,7 @@ function signIn(req, res, next) {
             // if user is found and password is right
             // create a token
             let token = jwt.sign({USER_TYPE: data["user_type"], USER_ID: data.id}, secretToken, {
-                expiresIn : 60*60*24 // expires in 24 hours
+                expiresIn: 60 * 60 * 24 // expires in 24 hours
             });
 
             // return the information including token as JSON
@@ -148,10 +148,11 @@ function registerStudents(req, res, next) {
             db.tx(function (t) {
                 let queries = csvContent.map(function (l) {
 
-                    return t.one('SELECT id_year_section FROM TFE.years_sections WHERE section = $1 AND year = $2', [ l["Orientation"] , l["Année"] ])
+                    return t.one('SELECT id_year_section FROM TFE.years_sections WHERE section = $1 AND year = $2', [l["Orientation"], l["Année"]])
                         .then(function (result) {
-                            return t.none('insert into TFE.users(matricule,name,first_name,id_year,email,user_type)' +
-                                'values($1,$2,$3,$4,$5,$6)', [l["Matric Info"], l["Nom Etudiant"], l["Prénom Etudiant"], result.id_year_section, l["EMail Etudiant 2"], "STUDENT"]);
+                            let pseudo = l["Prénom Etudiant"].charAt(0) + l["Nom Etudiant"].substring(0, 6);
+                            return t.none('insert into TFE.users(matricule,name,first_name,id_year,email,user_type,login)' +
+                                'values($1,$2,$3,$4,$5,$6,$7)', [l["Matric Info"], l["Nom Etudiant"], l["Prénom Etudiant"], result.id_year_section, l["EMail Etudiant 2"], "STUDENT", pseudo.toLowerCase()]);
                         });
                 });
                 return t.batch(queries);
@@ -174,19 +175,42 @@ function registerStudents(req, res, next) {
 
 function createUserProfil(req, res, next) {
 
-    db.none('insert into laBonneTable(tesChamps)' +
-        'values($1,etc)', [req.body.name])
-        .then(function () {
-            res.status(200)
-                .json({
-                    status: 'success',
-                    message: 'Inserted one user profil'
+    let name = req.body.name;
+    let id_year = (req.body.id_year == undefined) ? null : req.body.id_year;
+    let softwareList;
+
+    try {
+        softwareList = JSON.parse(req.body.software);
+    } catch (err) {
+        return next(err);
+    }
+
+    if (softwareList === undefined) {
+        return next(err);
+    } else {
+
+        db.tx(function (t) {
+
+            return t.one('insert into TFE.profiles(id_year, name) VALUES($1,$2) RETURNING id_profile', [id_year, name])
+                .then(function (result) {
+                    let queries = softwareList.map(function (software) {
+                        return t.none('INSERT into TFE.profiles_softwares(id_profile,id_software) VALUES($1,$2)', [result.id_profile, parseInt(software)]);
+                    });
+                    return t.batch(queries);
                 });
         })
-        .catch(function (err) {
-            return next(err);
-        });
-
+            .then(function (data) {
+                res.status(200)
+                    .json({
+                        status: 'success',
+                        message: 'Inserted one user profil'
+                    });
+            })
+            .catch(function (err) {
+                console.log(err);
+                return next(err);
+            });
+    }
 }
 
 //TODO

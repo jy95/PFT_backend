@@ -76,11 +76,11 @@ describe('Server tests : ' , function () {
         //TODO
         it('Create User Profil', function (done) {
             // champs à setter bientôt
-           request(app)
+            request(app)
                .post('/api/createUserProfil')
                .set('Content-Type', 'application/x-www-form-urlencoded')
-               .send({id : 4})
-               .expect(500,done)
+               .send({name : "PROFIL TOURISTE", software : JSON.stringify([1,2])})
+               .expect(200,done)
         });
 
         it('useUserProfilOnStudents', function (done) {

@@ -24,7 +24,7 @@ connect:
   script:
   # official way to provide password to psql: http://www.postgresql.org/docs/9.3/static/libpq-envars.html
   - export PGPASSWORD=$POSTGRES_PASSWORD
-  - psql -h "postgres" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f db/db_initialization.sql
+  - psql -h "postgres" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f database/db_initialization.sql
 
 # Job: Test
 # Installs npm packages

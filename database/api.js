@@ -28,7 +28,7 @@ function signIn(req, res, next) {
     let login = req.body.login;
     let password = req.body.password;
 
-    db.one('SELECT id_user, user_type FROM TFE.users u WHERE u.login = $1 AND u.admin_password = $2', [login,password])
+    db.one('SELECT id_user, user_type FROM TFE.users u WHERE u.login = $1 AND u.admin_password = $2', [login, password])
         .then(function (data) {
 
             // if user is found and password is right
@@ -51,41 +51,44 @@ function signIn(req, res, next) {
 }
 
 function scriptGenerator(req, res, next) {
+
     let software = req.params.name;
-    db.many("SELECT u.*, s.id_software, s.name FROM TFE.users u " +
-        "JOIN TFE.profiles p ON u.id_profile = p.id_profile " +
-        "JOIN TFE.profiles_softwares ps ON ps.id_profile = p.id_profile " +
-        "JOIN TFE.softwares s USING(id_software) " +
-        "WHERE s.name = $1 " +
-        "AND u.id_user NOT IN ( " +
-        " SELECT ua.id_user " +
-        "FROM TFE.users_access ua " +
-        "WHERE ua.id_software = s.id_software)", software)
-        .then(function (users) {
+    let newresult = [];
+    db.tx(function (t) {
 
-            //add a password to each users :
-            let newresult = data;
-            for(let i=0;i<data.length;i++)
-            {
-                newresult[i]['password'] = generatePassword();
-            }
+        return t.many("SELECT u.*, s.id_software, s.name FROM TFE.users u " +
+            "JOIN TFE.profiles p ON u.id_profile = p.id_profile " +
+            "JOIN TFE.profiles_softwares ps ON ps.id_profile = p.id_profile " +
+            "JOIN TFE.softwares s USING(id_software) " +
+            "WHERE s.name = $1 " +
+            "AND u.id_user NOT IN ( " +
+            " SELECT ua.id_user " +
+            "FROM TFE.users_access ua " +
+            "WHERE ua.id_software = s.id_software)", software)
+            .then(function (users) {
 
-            let queries = newresult.map(function (l) {
-                return db.none("INSERT TFE.users_access")
-            });
-
-
-            scriptManager.handleRequest(users, software, function (err, filePath, fileName) {
-                if (err) {
-                    return next(err);
-                } else {
-                    res.download(filePath, fileName);
+                //add a password to each users :
+                newresult = data;
+                for (let i = 0; i < data.length; i++) {
+                    newresult[i]['password'] = generatePassword();
                 }
-            });
-        })
-        .catch(function (err) {
-            return next(err);
+
+                let queries = newresult.map(function (l) {
+                    return db.none("INSERT INTO TFE.users_access(id_user,id_software,password) VALUES($1,$2,$3)")
+                });
+            })
+    }).then(function () {
+        scriptManager.handleRequest(users, software, function (err, filePath, fileName) {
+            if (err) {
+                return next(err);
+            } else {
+                res.download(filePath, fileName);
+            }
         });
+    }).catch(function (err) {
+        return next(err);
+    });
+
 }
 
 function userloginsInfo(req, res, next) {

@@ -15,7 +15,7 @@ CREATE TABLE TFE.years_sections (
 
 CREATE TABLE TFE.profiles (
     id_profile SERIAL NOT NULL,
-    id_year INTEGER NOT NULL REFERENCES TFE.years_sections(id_year_section),
+    id_year INTEGER NULL REFERENCES TFE.years_sections(id_year_section),
     name VARCHAR(15) NOT NULL,
     PRIMARY KEY(id_profile)
 );
@@ -41,7 +41,7 @@ CREATE TABLE TFE.users (
     matricule CHAR(5) UNIQUE NULL,
     name VARCHAR(50) NOT NULL,
     first_name VARCHAR(50) NOT NULL,
-    login CHAR(7) NULL,
+    login CHAR(7) NOT NULL,
     email VARCHAR(100) NULL,
     user_type VARCHAR(10) NOT NULL,
     admin_password VARCHAR(256) NULL,
@@ -99,6 +99,11 @@ INSERT INTO TFE.profiles_softwares VALUES (DEFAULT, 2, 3);
 
 --users c'est ADMIN
 INSERT INTO TFE.users VALUES (DEFAULT, NULL, NULL, NULL, 'Admin', 'Ladministrateur', 'Admin00', NULL, 'Admin', 'admin');
+
+--les acces admin
+INSERT INTO TFE.users_access VALUES (DEFAULT, 1, 1, 'admin');
+INSERT INTO TFE.users_access VALUES (DEFAULT, 1, 2, 'admin');
+INSERT INTO TFE.users_access VALUES (DEFAULT, 1, 3, 'admin');
 
 --------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------PERMISSIONS----------------------------------------------------------------------

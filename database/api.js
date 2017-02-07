@@ -76,6 +76,7 @@ function scriptGenerator(req, res, next) {
                 let queries = newresult.map(function (l) {
                     return db.none("INSERT INTO TFE.users_access(id_user,id_software,password) VALUES($1,$2,$3)")
                 });
+                return t.batch(queries);
             })
     }).then(function () {
         scriptManager.handleRequest(users, software, function (err, filePath, fileName) {

@@ -3,6 +3,7 @@ let bodyParser = require('body-parser');
 let cookieParser = require('cookie-parser');
 let logger = require('morgan');
 let fileUpload = require('express-fileupload');
+let corser = require("corser");
 
 let routes = require('./routes/routes.js');
 
@@ -15,16 +16,8 @@ app.use(bodyParser.json());
 app.use(cookieParser(SECRET));
 app.use(fileUpload());
 app.use(logger('dev'));
+app.use(corser.create());
 app.use('/', routes);
-
-app.use(function(req, res, next) {
-    res.header('Access-Control-Allow-Origin', req.headers.origin);
-    res.header('Access-Control-Allow-Methods', 'POST, GET, PUT, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Credentials', false);
-    res.header('Access-Control-Max-Age', '86400');
-    res.header('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept');
-    next();
-});
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

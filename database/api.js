@@ -56,7 +56,7 @@ function scriptGenerator(req, res, next) {
     let newresult = [];
     db.tx(function (t) {
 
-        return t.many("SELECT u.id_user , u.first_name , u.name AS user_name, u.email , u.matricule , s.id_software, s.name AS software_name FROM TFE.users u " +
+        return t.any("SELECT u.id_user , u.first_name , u.name AS user_name, u.email , u.matricule , s.id_software, s.name AS software_name FROM TFE.users u " +
             "JOIN TFE.profiles p ON u.id_profile = p.id_profile " +
             "JOIN TFE.profiles_softwares ps ON ps.id_profile = p.id_profile " +
             "JOIN TFE.softwares s USING(id_software) " +
@@ -97,7 +97,7 @@ function scriptGenerator(req, res, next) {
 
 function userloginsInfo(req, res, next) {
     let userId = parseInt(req.params.id);
-    db.many("SELECT * FROM Users.access u WHERE u.id_user = $1", userId)
+    db.any("SELECT * FROM Users.access u WHERE u.id_user = $1", userId)
         .then(function (data) {
             res.status(200).json({
                 status: 'success',
@@ -268,7 +268,7 @@ function useUserProfilOnStudents(req, res, next) {
 
 function listSoftwares(req, res, next) {
 
-    db.many("SELECT * FROM TFE.softwares")
+    db.any("SELECT * FROM TFE.softwares")
         .then(function (data) {
             res.status(200)
                 .json({
@@ -283,7 +283,7 @@ function listSoftwares(req, res, next) {
 }
 
 function listUsers(req, res, next) {
-    db.many("SELECT * FROM TFE.users")
+    db.any("SELECT * FROM TFE.users")
         .then(function (data) {
             res.status(200)
                 .json({
@@ -297,7 +297,7 @@ function listUsers(req, res, next) {
 }
 
 function listProfils(req, res, next) {
-    db.many("SELECT * FROM TFE.profiles")
+    db.any("SELECT * FROM TFE.profiles")
         .then(function (data) {
             res.status(200)
                 .json({
@@ -308,6 +308,34 @@ function listProfils(req, res, next) {
         }).catch(function (err) {
         return next(err);
     });
+}
+
+// TODO
+function createUser(req,res,next) {
+
+    let name = req.body.name;
+    let first_name = req.body.first_name;
+    let type_user = req.body.type_user;
+
+    if (login.length == 0 || first_name.length == 0 || type_user.length == 0){
+        return next(new Error("VIDE"));
+    }
+
+    let login = (type_user == "GUEST") ? first_name.charAt(0) + name.substring(0, 6) : req.body.login;
+    let params = [name, first_name , type_user , login ];
+
+    db.none("INSERT INTO TFE.users VALUES(DEFAULT, NULL, 'GUEST', NULL, $1(name), $2(firts_name), $3(login), NULL, 'GUEST', NULL)", [])
+        .then(function () {
+            res.status(200)
+                .json({
+                    status: 'success',
+                    message: 'Enjoy',
+                    data: data
+                });
+        })
+        .catch(function (err) {
+            return next(err);
+        })
 }
 
 module.exports = {
@@ -322,5 +350,6 @@ module.exports = {
     useUserProfilOnStudents: useUserProfilOnStudents,
     listSoftwares: listSoftwares,
     listUsers: listUsers,
-    listProfils: listProfils
+    listProfils: listProfils,
+    createUser: createUser
 };

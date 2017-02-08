@@ -27,8 +27,8 @@ module.exports.generateFile = function (matricule,data,callback) {
                 table(data, columns)
             ]
         };
-
-        let writeStream = fs.createWriteStream(filePath);
+        // NOTE : PAS UTILE ICI
+        //let writeStream = fs.createWriteStream(filePath);
         let pdfDoc = printer.createPdfKitDocument(docDefinition);
         callback(null,pdfDoc);
     } catch (err){

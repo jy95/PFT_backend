@@ -147,5 +147,11 @@ describe('Server tests : ', function () {
                 .expect(200,done);
         })
 
+        it("AllUserloginsInfo", function (done) {
+            request(app)
+                .get("/api/AllUserLoginsInfo")
+                .expect(200,done);
+        })
+
     });
 });

@@ -106,6 +106,31 @@ function scriptGenerator(req, res, next) {
 
 }
 
+function allUserLoginsInfo(req,res, next) {
+    db.many("SELECT u.login AS userLogin, ua.password AS softwarePassword, s.name AS softwareName FROM TFE.users u JOIN TFE.users_access ua USING(id_user) JOIN TFE.softwares s USING(id_software) ")
+        .then(function (data) {
+
+            pdfGenerator.generateFile("ALL_USERS",data, function (err,pdfDoc) {
+                if (err) {
+                    console.log(err);
+                    return next(customErrors.errorScriptGeneration);
+                }  else {
+                    res.set('content-type', 'application/pdf');
+                    res.setHeader('Content-disposition', 'attachment; filename=' + 'Logins_' + "ALL_USERS" +  '.pdf');
+
+                    // Create the PDF and pipe it to the response object.
+                    pdfDoc.pipe(res);
+                    pdfDoc.end();
+                }
+            });
+
+        })
+        .catch(function (err) {
+            console.log(err);
+            return next(customErrors.errorNotFound);
+        });
+}
+
 function userloginsInfo(req, res, next) {
 
     let matricule = req.params.matricule;
@@ -406,5 +431,6 @@ module.exports = {
     listSoftwares: listSoftwares,
     listUsers: listUsers,
     listProfils: listProfils,
-    createUser: createUser
+    createUser: createUser,
+    allUserLoginsInfo: allUserLoginsInfo
 };

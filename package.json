@@ -24,6 +24,7 @@
     "csvtojson": "^1.1.4",
     "debug": "^2.6.0",
     "dotenv": "^4.0.0",
+    "error": "^7.0.2",
     "express": "^4.14.1",
     "express-fileupload": "0.0.6",
     "json2csv": "^3.7.3",

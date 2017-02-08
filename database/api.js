@@ -3,6 +3,52 @@ let scriptManager = require("../script_manager/script_manager.js");
 const csv = require('csvtojson');
 let jwt = require('jsonwebtoken');
 let generatePassword = require('password-generator');
+let TypedError = require("error/typed");
+
+let ServerError = TypedError({
+    type: 'server.5xx',
+    message: '{title} server error, status={statusCode}',
+    title: null,
+    statusCode: null
+});
+
+let ClientError = TypedError({
+    type: 'client.4xx',
+    message: '{title} client error, status={statusCode}',
+    title: null,
+    statusCode: null
+});
+
+let errorBadRequest = ClientError({
+    title:'Erreur la synthax de la requête n\'est pas correcte',
+    statusCode: 400
+});
+
+let errorMissingFile = ClientError({
+    title:'Aucun fichier n\'a été envoyé',
+    statusCode: 400
+})
+
+let errorUnauthorizedAccess = ClientError({
+    title:'Erreur d\'authetification',
+    statusCode: 401
+});
+
+let errorNotFound = ClientError({
+    title: 'Erreur Page Not Found',
+    statusCode: 404
+});
+
+let errorServer = ServerError({
+    title:'Erreur Serveur',
+    statusCode: 500
+});
+
+let errorScriptGeneration = ServerError({
+    title:'Problème à la génération du script',
+    statusCode: 500
+});
+
 
 let options = {
     // Initialization Options
@@ -28,6 +74,10 @@ function signIn(req, res, next) {
     let login = req.body.login;
     let password = req.body.password;
 
+    if (login == undefined || login.length == 0 || password == undefined || password.length == 0){
+        return next(errorBadRequest);
+    }
+
     db.one('SELECT id_user, user_type FROM TFE.users u WHERE u.login = $1 AND u.admin_password = $2', [login, password])
         .then(function (data) {
 
@@ -46,7 +96,8 @@ function signIn(req, res, next) {
 
         })
         .catch(function (err) {
-            return next(err);
+            console.log(err);
+            return next(errorUnauthorizedAccess);
         });
 }
 
@@ -54,6 +105,11 @@ function scriptGenerator(req, res, next) {
 
     let software = req.params.name;
     let newresult = [];
+
+    if(software == undefined || software.length == 0){
+        return next(errorBadRequest);
+    }
+
     db.tx(function (t) {
 
         return t.any("SELECT u.id_user , u.first_name , u.name AS user_name, u.email , u.matricule , s.id_software, s.name AS software_name FROM TFE.users u " +
@@ -82,7 +138,7 @@ function scriptGenerator(req, res, next) {
         scriptManager.handleRequest(newresult, software, function (err, filePath, fileName) {
             if (err) {
                 console.log(err);
-                return next(err);
+                return next(errorScriptGeneration);
             } else {
                 res.download(filePath, fileName);
             }
@@ -90,7 +146,7 @@ function scriptGenerator(req, res, next) {
     }).catch(function (err) {
         console.log(err);
         err.code = 404;
-        return next(err);
+        return next(errorNotFound);
     });
 
 }
@@ -106,14 +162,21 @@ function userloginsInfo(req, res, next) {
             });
         })
         .catch(function (err) {
-            return next(err);
+            console.log(err);
+            return next(errorNotFound);
         });
 }
 
 function addSoftware(req, res, next) {
 
+    let name = req.body.name;
+
+    if(name == undefined || name.length == 0){
+        return next(errorBadRequest);
+    }
+
     db.none('insert into TFE.softwares(name)' +
-        'values($1)', req.body.name)
+        'values($1)', name)
         .then(function () {
             res.status(200)
                 .json({
@@ -122,12 +185,20 @@ function addSoftware(req, res, next) {
                 });
         })
         .catch(function (err) {
-            return next(err);
+            console.log(err);
+            return next(errorServer);
         });
 }
 
 function removeSoftware(req, res, next) {
-    db.result('delete from TFE.softwares where id_software = $1', parseInt(req.body.id))
+
+    let id = res.body.id;
+
+    if(id == undefined || id == null){
+        return next(errorBadRequest);
+    }
+
+    db.result('delete from TFE.softwares where id_software = $1', parseInt(id))
         .then(function (result) {
 
             res.status(200)
@@ -138,14 +209,22 @@ function removeSoftware(req, res, next) {
 
         })
         .catch(function (err) {
-            return next(err);
+            console.log(err);
+            return next(errorServer);
         });
 }
 
 function updateSoftware(req, res, next) {
 
+    let name = req.body.name;
+    let id = req.body.id;
+
+    if(name == undefined || name.length == 0 || id == undefined || id == null){
+        return next(errorBadRequest);
+    }
+
     db.none('update TFE.softwares set name=$1 where id_software=$2',
-        [req.body.name, parseInt(req.body.id)])
+        [name, parseInt(id)])
         .then(function () {
             res.status(200)
                 .json({
@@ -154,7 +233,8 @@ function updateSoftware(req, res, next) {
                 });
         })
         .catch(function (err) {
-            return next(err);
+            console.log(err);
+            return next(errorServer);
         });
 
 }

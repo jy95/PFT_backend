@@ -371,7 +371,8 @@ function createUser(req,res,next) {
                 .then(function (profil) {
                     req.body.id_profil = parseInt(profil.id_profile);
                     req.body.studentIds = [ req.body.id_profil ];
-                    return useUserProfilOnStudents(req,res,next);
+                    useUserProfilOnStudents(req,res,next);
+                    return null;
                 });
         })
         .catch(function (err) {

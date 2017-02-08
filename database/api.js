@@ -97,7 +97,7 @@ function scriptGenerator(req, res, next) {
 
 function userloginsInfo(req, res, next) {
     let userId = parseInt(req.params.id);
-    db.any("SELECT * FROM Users.access u WHERE u.id_user = $1", userId)
+    db.any("SELECT * FROM Users.access u WHERE u.matricule = $1", userId)
         .then(function (data) {
             res.status(200).json({
                 status: 'success',
@@ -314,23 +314,24 @@ function listProfils(req, res, next) {
 function createUser(req,res,next) {
 
     let name = req.body.name;
-    let first_name = req.body.first_name;
-    let type_user = req.body.type_user;
+    let firstName = req.body.firstName;
+    let type = req.body.type;
 
-    if (login.length == 0 || first_name.length == 0 || type_user.length == 0){
+    if (login.length == 0 || firstName.length == 0 || type.length == 0){
         return next(new Error("VIDE"));
     }
 
-    let login = (type_user == "GUEST") ? first_name.charAt(0) + name.substring(0, 6) : req.body.login;
-    let params = [name, first_name , type_user , login ];
+    let email = ( req.body.email == undefined || (req.body.email.length == 0) ) ? "" : req.body.email;
+    let login = (type == "TEACHER" && req.body.login != undefined && req.body.login.length != 0) ? req.body.login  : firstName.charAt(0) + name.substring(0, 6);
+    let params = [name,firstName,type,login,email];
 
-    db.none("INSERT INTO TFE.users VALUES(DEFAULT, NULL, 'GUEST', NULL, $1(name), $2(firts_name), $3(login), NULL, 'GUEST', NULL)", [])
-        .then(function () {
-            res.status(200)
-                .json({
-                    status: 'success',
-                    message: 'Enjoy',
-                    data: data
+    db.none("INSERT INTO TFE.users(name,first_name,user_type,login,email) VALUES($1,$2,$3,$4,$5) RETURNING id_user", params)
+        .then(function (user) {
+            db.once("SELECT id_profil FROM TFE.profiles WHERE name = $1","GUEST")
+                .then(function (profil) {
+                    req.body.id_profil = profil.id_profil;
+                    req.body.studentIds = [user.id_profil];
+                    return useUserProfilOnStudents(req,res,next);
                 });
         })
         .catch(function (err) {

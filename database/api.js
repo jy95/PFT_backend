@@ -357,7 +357,6 @@ function createUser(req,res,next) {
     let firstName = req.body.firstName;
     let type = req.body.type;
 
-    if (name == undefined || firstName == undefined || type == undefined || login.length == 0 || firstName.length == 0 || type.length == 0){
     let login = (type == "TEACHER" && req.body.login != undefined && req.body.login.length != 0) ? req.body.login  : firstName.charAt(0) + name.substring(0, 6);
     if (login.length == 0 || firstName.length == 0 || type.length == 0){
         return next(new Error("VIDE"));

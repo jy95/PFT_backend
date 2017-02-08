@@ -107,6 +107,7 @@ function scriptGenerator(req, res, next) {
 }
 
 function allUserLoginsInfo(req,res, next) {
+
     db.many("SELECT u.login AS userLogin, ua.password AS softwarePassword, s.name AS softwareName FROM TFE.users u JOIN TFE.users_access ua USING(id_user) JOIN TFE.softwares s USING(id_software) ")
         .then(function (data) {
 
@@ -231,6 +232,7 @@ function updateSoftware(req, res, next) {
 }
 
 function registerStudents(req, res, next) {
+
     let sampleFile;
 
     if (!req.files) {
@@ -357,6 +359,7 @@ function listSoftwares(req, res, next) {
 }
 
 function listUsers(req, res, next) {
+
     db.any("SELECT * FROM TFE.users")
         .then(function (data) {
             res.status(200)
@@ -372,6 +375,7 @@ function listUsers(req, res, next) {
 }
 
 function listProfils(req, res, next) {
+
     db.any("SELECT * FROM TFE.profiles")
         .then(function (data) {
             res.status(200)

@@ -3,51 +3,7 @@ let scriptManager = require("../script_manager/script_manager.js");
 const csv = require('csvtojson');
 let jwt = require('jsonwebtoken');
 let generatePassword = require('password-generator');
-let TypedError = require("error/typed");
-
-let ServerError = TypedError({
-    type: 'server.5xx',
-    message: '{title} server error, status={statusCode}',
-    title: null,
-    statusCode: null
-});
-
-let ClientError = TypedError({
-    type: 'client.4xx',
-    message: '{title} client error, status={statusCode}',
-    title: null,
-    statusCode: null
-});
-
-let errorBadRequest = ClientError({
-    title:'Erreur la synthax de la requête n\'est pas correcte',
-    statusCode: 400
-});
-
-let errorMissingFile = ClientError({
-    title:'Aucun fichier n\'a été envoyé',
-    statusCode: 400
-})
-
-let errorUnauthorizedAccess = ClientError({
-    title:'Erreur d\'authetification',
-    statusCode: 401
-});
-
-let errorNotFound = ClientError({
-    title: 'Erreur Page Not Found',
-    statusCode: 404
-});
-
-let errorServer = ServerError({
-    title:'Erreur Serveur',
-    statusCode: 500
-});
-
-let errorScriptGeneration = ServerError({
-    title:'Problème à la génération du script',
-    statusCode: 500
-});
+let customErrors = require('./errrors.js');
 
 
 let options = {
@@ -75,7 +31,7 @@ function signIn(req, res, next) {
     let password = req.body.password;
 
     if (login == undefined || login.length == 0 || password == undefined || password.length == 0){
-        return next(errorBadRequest);
+        return next(customErrors.errorMissingParameters);
     }
 
     db.one('SELECT id_user, user_type FROM TFE.users u WHERE u.login = $1 AND u.admin_password = $2', [login, password])
@@ -97,7 +53,7 @@ function signIn(req, res, next) {
         })
         .catch(function (err) {
             console.log(err);
-            return next(errorUnauthorizedAccess);
+            return next(customErrors.errorUnauthorizedAccess);
         });
 }
 
@@ -107,7 +63,7 @@ function scriptGenerator(req, res, next) {
     let newresult = [];
 
     if(software == undefined || software.length == 0){
-        return next(errorBadRequest);
+        return next(customErrors.errorMissingParameters);
     }
 
     db.tx(function (t) {
@@ -138,15 +94,14 @@ function scriptGenerator(req, res, next) {
         scriptManager.handleRequest(newresult, software, function (err, filePath, fileName) {
             if (err) {
                 console.log(err);
-                return next(errorScriptGeneration);
+                return next(customErrors.errorScriptGeneration);
             } else {
                 res.download(filePath, fileName);
             }
         });
     }).catch(function (err) {
         console.log(err);
-        err.code = 404;
-        return next(errorNotFound);
+        return next(customErrors.errorNotFound);
     });
 
 }
@@ -163,7 +118,7 @@ function userloginsInfo(req, res, next) {
         })
         .catch(function (err) {
             console.log(err);
-            return next(errorNotFound);
+            return next(customErrors.errorNotFound);
         });
 }
 
@@ -172,7 +127,7 @@ function addSoftware(req, res, next) {
     let name = req.body.name;
 
     if(name == undefined || name.length == 0){
-        return next(errorBadRequest);
+        return next(customErrors.errorMissingParameters);
     }
 
     db.none('insert into TFE.softwares(name)' +
@@ -186,7 +141,7 @@ function addSoftware(req, res, next) {
         })
         .catch(function (err) {
             console.log(err);
-            return next(errorServer);
+            return next(customErrors.createServerError({title:'errorCreateSoftware', statusCode:500, message:'Erreur à la création d\'un software'}));
         });
 }
 
@@ -195,7 +150,7 @@ function removeSoftware(req, res, next) {
     let id = req.body.id;
 
     if(id == undefined || id == null){
-        return next(errorBadRequest);
+        return next(customErrors.errorMissingParameters);
     }
 
     db.result('delete from TFE.softwares where id_software = $1', parseInt(id))
@@ -210,7 +165,7 @@ function removeSoftware(req, res, next) {
         })
         .catch(function (err) {
             console.log(err);
-            return next(errorServer);
+            return next(customErrors.errorServer);
         });
 }
 
@@ -220,7 +175,7 @@ function updateSoftware(req, res, next) {
     let id = req.body.id;
 
     if(name == undefined || name.length == 0 || id == undefined || id == null){
-        return next(errorBadRequest);
+        return next(customErrors.errorMissingParameters);
     }
 
     db.none('update TFE.softwares set name=$1 where id_software=$2',
@@ -234,7 +189,7 @@ function updateSoftware(req, res, next) {
         })
         .catch(function (err) {
             console.log(err);
-            return next(errorServer);
+            return next(customErrors.errorServer);
         });
 
 }
@@ -243,7 +198,7 @@ function registerStudents(req, res, next) {
     let sampleFile;
 
     if (!req.files) {
-        return next(new Error('No files were uploaded.'));
+        return next(customErrors.errorMissingFile);
     }
     // nom dans form
     sampleFile = req.files.csvFile;
@@ -275,13 +230,13 @@ function registerStudents(req, res, next) {
                     });
             }).catch(function (err) {
                 console.log(err);
-                return next(err);
+                return next(customErrors.errorServer);
             });
 
         })
         .on('error', (err) => {
-            err.code = 404;
-            return next(err);
+            console.log(err);
+            return next(customErrors.createServerError({title:'errorRegisterStudent', statusCode:500, message:'Erreur à l\'inscription des étudiants'}));
         })
 
 }
@@ -293,7 +248,7 @@ function createUserProfil(req, res, next) {
     let softwareList = req.body.software;
 
     if (softwareList == undefined) {
-        return next(new Error("NO REQUIRED PARAM"));
+        return next(customErrors.errorMissingParameters);
     } else {
 
         db.tx(function (t) {
@@ -314,7 +269,8 @@ function createUserProfil(req, res, next) {
                     });
             })
             .catch(function (err) {
-                return next(err);
+                console.log(err);
+                return next(customErrors.createServerError({title:'errorCreateProfil', statusCode:500, message:'Erreur à la création d\'un profil utilisateur'}));
             });
     }
 }
@@ -324,8 +280,8 @@ function useUserProfilOnStudents(req, res, next) {
     let id_profil = req.body.id_profil;
     let studentIds = req.body.studentIds;
 
-    if (studentIds == undefined) {
-        return next(new Error("NO REQUIRED PARAM"));
+    if (studentIds == undefined ||id_profil == undefined) {
+        return next(customErrors.errorMissingParameters);
     } else {
 
         db.tx(function (t) {
@@ -341,7 +297,8 @@ function useUserProfilOnStudents(req, res, next) {
                 });
         })
             .catch(function (err) {
-                return next(err);
+                console.log(err);
+                return next(customErrors.errorServer);
             });
     }
 }
@@ -357,8 +314,9 @@ function listSoftwares(req, res, next) {
                     data: data
                 });
         }).catch(function (err) {
-        return next(err);
-    });
+            console.log(err);
+            return next(customErrors.errorServer);
+        });
 
 }
 
@@ -372,8 +330,9 @@ function listUsers(req, res, next) {
                     data: data
                 });
         }).catch(function (err) {
-        return next(err);
-    });
+            console.log(err);
+            return next(customErrors.errorServer);
+        });
 }
 
 function listProfils(req, res, next) {
@@ -386,8 +345,9 @@ function listProfils(req, res, next) {
                     data: data
                 });
         }).catch(function (err) {
-        return next(err);
-    });
+            console.log(err);
+            return next(customErrors.errorServer);
+        });
 }
 
 // TODO
@@ -396,6 +356,8 @@ function createUser(req,res,next) {
     let name = req.body.name;
     let firstName = req.body.firstName;
     let type = req.body.type;
+
+    if (name == undefined || firstName == undefined || type == undefined || login.length == 0 || firstName.length == 0 || type.length == 0){
     let login = (type == "TEACHER" && req.body.login != undefined && req.body.login.length != 0) ? req.body.login  : firstName.charAt(0) + name.substring(0, 6);
     if (login.length == 0 || firstName.length == 0 || type.length == 0){
         return next(new Error("VIDE"));
@@ -415,7 +377,7 @@ function createUser(req,res,next) {
         })
         .catch(function (err) {
             console.log(err);
-            return next(err);
+            return next(customErrors.errorServer);
         })
 }
 

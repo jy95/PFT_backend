@@ -192,7 +192,7 @@ function addSoftware(req, res, next) {
 
 function removeSoftware(req, res, next) {
 
-    let id = res.body.id;
+    let id = req.body.id;
 
     if(id == undefined || id == null){
         return next(errorBadRequest);

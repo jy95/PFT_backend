@@ -48,7 +48,7 @@ describe('Server tests : ', function () {
                 .post('/api/updateSoftware')
                 .set('Content-Type', 'application/json')
                 .send({name: 'Shinigami', id: 4})
-                .expect(200, done)
+                .expect(200, done);
         });
 
         it('Create another software', function (done) {

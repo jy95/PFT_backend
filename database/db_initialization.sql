@@ -10,6 +10,7 @@ CREATE TABLE TFE.years_sections (
     id_year_section SERIAL NOT NULL,
     year CHAR(2) NOT NULL,
     section CHAR(3) NOT NULL,
+    UNIQUE(year, section),
     PRIMARY KEY(id_year_section)
 );
 
@@ -17,12 +18,14 @@ CREATE TABLE TFE.profiles (
     id_profile SERIAL NOT NULL,
     id_year INTEGER NULL REFERENCES TFE.years_sections(id_year_section),
     name VARCHAR(15) NOT NULL,
+    UNIQUE(name, id_year),
     PRIMARY KEY(id_profile)
 );
 
 CREATE TABLE TFE.softwares (
     id_software SERIAL NOT NULL,
     name VARCHAR(50) NOT NULL,
+    UNIQUE(name),
     PRIMARY KEY(id_software)
 );
 
@@ -38,13 +41,14 @@ CREATE TABLE TFE.users (
     id_user SERIAL NOT NULL,
     id_year INTEGER NULL REFERENCES TFE.years_sections(id_year_section),
     id_profile INTEGER NULL REFERENCES TFE.profiles(id_profile),
-    matricule CHAR(5) UNIQUE NULL,
+    matricule CHAR(5) NULL,
     name VARCHAR(50) NOT NULL,
     first_name VARCHAR(50) NOT NULL,
     login CHAR(7) NOT NULL,
     email VARCHAR(100) NULL,
     user_type VARCHAR(10) NOT NULL,
     admin_password VARCHAR(256) NULL,
+    UNIQUE(matricule),
     PRIMARY KEY(id_user)
 );
 
@@ -85,6 +89,7 @@ INSERT INTO TFE.profiles VALUES (DEFAULT, 6, '2BIN');
 INSERT INTO TFE.profiles VALUES (DEFAULT, 7, '3BBM');
 INSERT INTO TFE.profiles VALUES (DEFAULT, 8, '3BDI');
 INSERT INTO TFE.profiles VALUES (DEFAULT, 9, '3BIN');
+INSERT INTO TFE.profiles VALUES (DEFAULT, NULL, 'GUEST');
 
 --softwares
 INSERT INTO TFE.softwares VALUES (DEFAULT, 'Windows');
@@ -97,6 +102,7 @@ INSERT INTO TFE.profiles_softwares VALUES (DEFAULT, 3, 2);
 INSERT INTO TFE.profiles_softwares VALUES (DEFAULT, 2, 1);
 INSERT INTO TFE.profiles_softwares VALUES (DEFAULT, 2, 2);
 INSERT INTO TFE.profiles_softwares VALUES (DEFAULT, 2, 3);
+INSERT INTO TFE.profiles_softwares VALUES (DEFAULT, 10, 1);
 
 --users c'est ADMIN
 INSERT INTO TFE.users VALUES (DEFAULT, NULL, NULL, NULL, 'Admin', 'Ladministrateur', 'Admin00', NULL, 'Admin', 'admin');

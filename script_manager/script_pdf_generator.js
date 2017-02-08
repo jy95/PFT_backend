@@ -12,50 +12,55 @@ let printer = new PdfPrinter(fonts);
 let fs = require('fs');
 
 
-module.exports.generateFile = function (data,callback) {
+module.exports.generateFile = function (matricule,data,callback) {
 
-    let fileName = "Logins_" + data[0]["userLogin"] + ".pdf";
+    let fileName = "Logins_" + matricule + ".pdf";
     let filePath = __dirname + "/files/" + fileName;
 
-    let logins = [ ['userLogin', 'softwarePassword', 'softwareName'] ];
-    for (let obj of data) {
-        let arr = [];
-        for(let x in obj){
-            arr.push(obj[x]);
-        }
-        logins.push(arr);
-    }
-
-    let docDefinition = {
-        content: [
-            {
-                table: {
-                    // headers are automatically repeated if the table spans over multiple pages
-                    // you can declare how many rows should be treated as headers
-                    headerRows: 1,
-                    widths: [ '*', 'auto', 100, '*' ],
-
-                    body: logins
-                }
-            }
-        ]
-    };
+    let columns = ['userlogin', 'softwarepassword', 'softwarename'];
 
     try {
 
-        let chunks = [];
-        let result;
+        let docDefinition = {
+            content: [
+                { text: 'Mes Login', style: 'header' },
+                table(data, columns)
+            ]
+        };
 
-        let doc = printer.createPdfKitDocument(docDefinition);
-        doc.on('data', function (chunk) {
-            chunks.push(chunk);
-        });
-        doc.on('end', function () {
-            result = Buffer.concat(chunks);
-            callback(null,'data:application/pdf;base64,' + result.toString('base64'));
-        });
-        doc.end();
+        let writeStream = fs.createWriteStream(filePath);
+        let pdfDoc = printer.createPdfKitDocument(docDefinition);
+        callback(null,pdfDoc);
     } catch (err){
+        console.log(err);
         callback(err);
     }
 };
+
+function buildTableBody(data, columns) {
+    let body = [];
+
+    body.push(columns);
+
+    data.forEach(function(row) {
+        let dataRow = [];
+
+        columns.forEach(function(column) {
+            dataRow.push(row[column]);
+        });
+
+        body.push(dataRow);
+    });
+
+    return body;
+}
+
+function table(data, columns) {
+    return {
+        table: {
+            headerRows: 1,
+            widths: [ '*', '*', '*', '*', '*' ],
+            body: buildTableBody(data, columns)
+        }
+    };
+}

@@ -111,14 +111,18 @@ function userloginsInfo(req, res, next) {
     let matricule = req.params.matricule;
     db.many("SELECT u.login AS userLogin, ua.password AS softwarePassword, s.name AS softwareName FROM TFE.users u JOIN TFE.users_access ua USING(id_user) JOIN TFE.softwares s USING(id_software) WHERE u.matricule = $1", matricule)
         .then(function (data) {
-            // TODO
-            pdfGenerator.generateFile(data, function (err,binary) {
+
+            pdfGenerator.generateFile(matricule,data, function (err,pdfDoc) {
                if (err) {
                    console.log(err);
                    return next(customErrors.errorScriptGeneration);
                }  else {
-                   res.contentType('application/pdf');
-                   res.send(binary);
+                   res.set('content-type', 'application/pdf');
+                   res.setHeader('Content-disposition', 'attachment; filename=' + 'Logins_' + matricule +  '.pdf');
+
+                   // Create the PDF and pipe it to the response object.
+                   pdfDoc.pipe(res);
+                   pdfDoc.end();
                }
             });
 
@@ -229,7 +233,7 @@ function registerStudents(req, res, next) {
                         });
                 });
                 return t.batch(queries);
-            }).then(function (data) {
+            }).then(function () {
                 res.status(200)
                     .json({
                         status: 'success',
@@ -268,7 +272,7 @@ function createUserProfil(req, res, next) {
                     return t.batch(queries);
                 });
         })
-            .then(function (data) {
+            .then(function () {
                 res.status(200)
                     .json({
                         status: 'success',
@@ -293,10 +297,10 @@ function useUserProfilOnStudents(req, res, next) {
 
         db.tx(function (t) {
             let queries = studentIds.map(function (l) {
-                return db.none("UPDATE TFE.users SET id_profile = $1 WHERE id_user = $2", [id_profil, parseInt(l)]);
+                return db.none("UPDATE TFE.users SET id_profile = $1 WHERE id_user = $2", [ parseInt(id_profil), parseInt(l)]);
             });
             t.batch(queries);
-        }).then(function (data) {
+        }).then(function () {
             res.status(200)
                 .json({
                     status: 'success',
@@ -378,7 +382,7 @@ function createUser(req,res,next) {
             db.one("SELECT id_profile FROM TFE.profiles WHERE name = $1","GUEST")
                 .then(function (profil) {
                     req.body.id_profil = parseInt(profil.id_profile);
-                    req.body.studentIds = [ req.body.id_profil ];
+                    req.body.studentIds = [ parseInt(user.id_user) ];
                     useUserProfilOnStudents(req,res,next);
                     return null;
                 });

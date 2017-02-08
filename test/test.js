@@ -109,6 +109,20 @@ describe('Server tests : ', function () {
                 .expect(200, done);
         });
 
+        it("CREATE GUEST USER", function (done) {
+           request(app)
+               .post("/api/createUser")
+               .send({ firstName : "dd", name : "dd" , type : "GUEST"})
+               .expect(200,done);
+        });
+
+        it("CREATE TEACHER USER", function (done) {
+            request(app)
+                .post("/api/createUser")
+                .send({ firstName : "dd", name : "dd" , type : "TEACHER" , login: "dd" , mail :"dd@dd.dd"})
+                .expect(200,done);
+        });
+
         it("scriptGenerator : Claroline.js", function (done) {
             request(app)
                 .get("/api/scriptGenerator/Claroline")

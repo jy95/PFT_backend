@@ -350,7 +350,6 @@ function listSoftwares(req, res, next) {
 
     db.any("SELECT * FROM TFE.softwares")
         .then(function (data) {
-            console.log(data);
             res.status(200)
                 .json({
                     status: 'success',
@@ -405,16 +404,17 @@ function createUser(req,res,next) {
     let email = ( req.body.email == undefined || (req.body.email.length == 0) ) ? "" : req.body.email;
     let params = [name,firstName,type,login,email];
 
-    db.none("INSERT INTO TFE.users(name,first_name,user_type,login,email) VALUES($1,$2,$3,$4,$5) RETURNING id_user", params)
+    db.one("INSERT INTO TFE.users(name,first_name,user_type,login,email) VALUES($1,$2,$3,$4,$5) RETURNING id_user", params)
         .then(function (user) {
-            db.once("SELECT id_profil FROM TFE.profiles WHERE name = $1","GUEST")
+            db.one("SELECT id_profile FROM TFE.profiles WHERE name = $1","GUEST")
                 .then(function (profil) {
-                    req.body.id_profil = profil.id_profil;
-                    req.body.studentIds = [user.id_profil];
+                    req.body.id_profil = parseInt(profil.id_profile);
+                    req.body.studentIds = [ req.body.id_profil ];
                     return useUserProfilOnStudents(req,res,next);
                 });
         })
         .catch(function (err) {
+            console.log(err);
             return next(err);
         })
 }

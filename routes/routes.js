@@ -10,9 +10,9 @@ router.post('/api/updateSoftware', api.updateSoftware);
 router.post('/api/registerStudents', api.registerStudents);
 router.post('/api/createUserProfil', api.createUserProfil);
 router.post('/api/useUserProfilOnStudents', api.useUserProfilOnStudents);
-router.post('/api/createUser', api.createUser); // TODO
+router.post('/api/createUser', api.createUser);
 router.get('/api/scriptGenerator/:name', api.scriptGenerator);
-router.get('/api/UserloginsInfo/:id', api.userloginsInfo);
+router.get('/api/UserloginsInfo/:matricule', api.userloginsInfo); //TODO
 router.get('/api/listSoftwares', api.listSoftwares);
 router.get('/api/listUsers', api.listUsers);
 router.get('/api/listProfils', api.listProfils);

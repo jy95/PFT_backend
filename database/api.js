@@ -4,7 +4,7 @@ const csv = require('csvtojson');
 let jwt = require('jsonwebtoken');
 let generatePassword = require('password-generator');
 let customErrors = require('./errrors.js');
-
+let pdfGenerator = require('../script_manager/script_pdf_generator.js');
 
 let options = {
     // Initialization Options
@@ -107,14 +107,21 @@ function scriptGenerator(req, res, next) {
 }
 
 function userloginsInfo(req, res, next) {
-    let userId = parseInt(req.params.id);
-    db.any("SELECT * FROM Users.access u WHERE u.matricule = $1", userId)
+
+    let matricule = req.params.matricule;
+    db.many("SELECT u.login AS userLogin, ua.password AS softwarePassword, s.name AS softwareName FROM TFE.users u JOIN TFE.users_access ua USING(id_user) JOIN TFE.softwares s USING(id_software) WHERE u.matricule = $1", matricule)
         .then(function (data) {
-            res.status(200).json({
-                status: 'success',
-                data: data,
-                message: 'GET YOUR DATA NOW'
+            // TODO
+            pdfGenerator.generateFile(data, function (err,binary) {
+               if (err) {
+                   console.log(err);
+                   return next(customErrors.errorScriptGeneration);
+               }  else {
+                   res.contentType('application/pdf');
+                   res.send(binary);
+               }
             });
+
         })
         .catch(function (err) {
             console.log(err);
@@ -286,7 +293,7 @@ function useUserProfilOnStudents(req, res, next) {
 
         db.tx(function (t) {
             let queries = studentIds.map(function (l) {
-                return db.none("UPDATE TFE.users SET id_profile = $1 WHERE id_user = $2", [parseInt(l), id_profil]);
+                return db.none("UPDATE TFE.users SET id_profile = $1 WHERE id_user = $2", [id_profil, parseInt(l)]);
             });
             t.batch(queries);
         }).then(function (data) {
@@ -350,7 +357,6 @@ function listProfils(req, res, next) {
         });
 }
 
-// TODO
 function createUser(req,res,next) {
 
     let name = req.body.name;

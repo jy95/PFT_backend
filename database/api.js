@@ -350,6 +350,7 @@ function listSoftwares(req, res, next) {
 
     db.any("SELECT * FROM TFE.softwares")
         .then(function (data) {
+            console.log(data);
             res.status(200)
                 .json({
                     status: 'success',
@@ -396,13 +397,12 @@ function createUser(req,res,next) {
     let name = req.body.name;
     let firstName = req.body.firstName;
     let type = req.body.type;
-
+    let login = (type == "TEACHER" && req.body.login != undefined && req.body.login.length != 0) ? req.body.login  : firstName.charAt(0) + name.substring(0, 6);
     if (login.length == 0 || firstName.length == 0 || type.length == 0){
         return next(new Error("VIDE"));
     }
 
     let email = ( req.body.email == undefined || (req.body.email.length == 0) ) ? "" : req.body.email;
-    let login = (type == "TEACHER" && req.body.login != undefined && req.body.login.length != 0) ? req.body.login  : firstName.charAt(0) + name.substring(0, 6);
     let params = [name,firstName,type,login,email];
 
     db.none("INSERT INTO TFE.users(name,first_name,user_type,login,email) VALUES($1,$2,$3,$4,$5) RETURNING id_user", params)

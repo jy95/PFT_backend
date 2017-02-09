@@ -5,9 +5,9 @@
   "main": "server.js",
   "scripts": {
     "test": "node node_modules/mocha/bin/_mocha test/test.js",
-    "cover": "istanbul cover node_modules/mocha/bin/_mocha -- -R spec test/test.js",
     "startServer": "node launch-server.js",
-    "start": "node launch-server.js"
+    "start": "node launch-server.js",
+    "generateDoc" : "node node_modules/apidoc/bin/apidoc -i database/ -o apidoc/"
   },
   "repository": {
     "type": "git",
@@ -37,7 +37,7 @@
     "supertest": "^3.0.0"
   },
   "devDependencies": {
-    "istanbul": "^0.4.5",
+    "apidoc": "^0.17.5",
     "mocha": "^3.2.0",
     "mocha-lcov-reporter": "^1.2.0"
   }

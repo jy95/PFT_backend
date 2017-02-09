@@ -356,7 +356,7 @@ function registerStudents(req, res, next) {
  *
  * @apiParam {String} name Name of the new profile.
  * @apiParam {Number} id_year Database id of a specific year of the school.
- * @apiParam (Array Number} software List of the id software included in that new profile.
+ * @apiParam {Number[]} software List of the id software included in that new profile.
  *
  * @apiSuccess {String} Message of success.
  */
@@ -400,7 +400,7 @@ function createUserProfil(req, res, next) {
  * @apiGroup Admin
  *
  * @apiParam {Number} id_profil The id of the profile to apply.
- * @apiParam {Array Number} studentIds List of the id students receiving the profile.
+ * @apiParam {Number[]} studentIds List of the id students receiving the profile.
  *
  * @apiSuccess {String} Message of success.
  */

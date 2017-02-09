@@ -163,7 +163,7 @@ function scriptGenerator(req, res, next) {
  * @apiName allUserLoginsInfo
  * @apiGroup Admin
  *
- * @apiSuccess {File} A PDF file with all the logins/passwords found.
+ * @apiSuccess      {pdf}       Logins_ALL_USERS      A PDF file with all the logins/passwords found.
  * @apiErrorExample {json} Error-Response:
  *     HTTP/1.1 Error Code
  *     {
@@ -200,13 +200,13 @@ function allUserLoginsInfo(req, res, next) {
 }
 
 /**
- * @api {get} /api/UserloginsInfo/:id Request for all logins/passwords of a student.
+ * @api {get} /api/UserloginsInfo/:matricule Request for all logins/passwords of a student.
  * @apiName userloginsInfo
  * @apiGroup User
  *
  * @apiParam {String} matricule Student's matricule.
  *
- * @apiSuccess {PDF} A PDF file with all the logins/passwords found.
+ * @apiSuccess      {pdf}       Logins_:matricule      A PDF file with all the logins/passwords found.
  * @apiErrorExample {json} Error-Response:
  *     HTTP/1.1 Error Code
  *     {
@@ -673,11 +673,29 @@ function listUsers(req, res, next) {
 }
 
 /**
- * @api {get} /api/listProfils Request a list of all the users.
+ * @api {get} /api/listProfils Request a list of all the profils.
  * @apiName listProfils
  * @apiGroup Admin
  *
- * @apiSuccess {String} Message of success.
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 Error Code
+ *     {
+ *          status: 'error',
+ *          message: "Un message d'erreur"
+ *     }
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *  {
+ *       "status":  "success",
+ *       "message": "Enjoy",
+ *       "data":[
+ *           {
+ *               "id_profile":1,
+ *               "id_year":1,
+ *               "name":"1BBM"
+ *           }
+ *       ]
+ *   }
  */
 function listProfils(req, res, next) {
 

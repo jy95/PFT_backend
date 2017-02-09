@@ -174,7 +174,7 @@ function scriptGenerator(req, res, next) {
  */
 function allUserLoginsInfo(req, res, next) {
 
-    db.many("SELECT u.login AS userLogin, ua.password AS softwarePassword, s.name AS softwareName " +
+    db.any("SELECT u.login AS userLogin, ua.password AS softwarePassword, s.name AS softwareName " +
         "FROM TFE.users u JOIN TFE.users_access ua USING(id_user) JOIN TFE.softwares s USING(id_software) " +
         "WHERE s.deleted IS FALSE")
         .then(function (data) {
@@ -223,7 +223,7 @@ function userloginsInfo(req, res, next) {
       return next(customErrors.errorMissingParameters);
     }
 
-    db.many("SELECT u.login AS userLogin, ua.password AS softwarePassword, s.name AS softwareName " +
+    db.any("SELECT u.login AS userLogin, ua.password AS softwarePassword, s.name AS softwareName " +
         "FROM TFE.users u JOIN TFE.users_access ua USING(id_user) JOIN TFE.softwares s USING(id_software) " +
         " WHERE s.deleted IS FALSE AND u.matricule = $1 ", matricule)
         .then(function (data) {

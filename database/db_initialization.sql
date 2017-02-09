@@ -131,3 +131,4 @@ GRANT SELECT,INSERT,DELETE ON TFE.profiles TO custom_user;
 GRANT SELECT,INSERT,DELETE,UPDATE ON TFE.softwares TO custom_user;
 GRANT SELECT,INSERT,DELETE ON TFE.profiles_softwares TO custom_user;
 GRANT SELECT,INSERT,DELETE ON TFE.users_access TO custom_user;
+

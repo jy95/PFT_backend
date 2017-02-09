@@ -511,7 +511,7 @@ function createUserProfil(req, res, next) {
 
 /**
  * @api {post} /api/useUserProfilOnStudents Function to register a list of new students based on a CSV file.
- * @apiName registerStudents
+ * @apiName useUserProfilOnStudents
  * @apiGroup Admin
  *
  * @apiParam {Number} id_profil The id of the profile to apply.
@@ -700,7 +700,7 @@ function listProfils(req, res, next) {
  *
  * @apiParam {String} name The name of the new user.
  * @apiParam {String} firstName The first name of the new user.
- * @apiParam {String} type The type of the new user (STUDENT, TEACHER, GUEST).
+ * @apiParam {String} type The type of the new user (ADMIN, GUEST, STUDENT, TEACHER).
  *
  */
 function createUser(req, res, next) {
@@ -711,6 +711,10 @@ function createUser(req, res, next) {
 
     if (firstName == undefined || firstName.length == 0 || name == undefined || name.length == 0 || type == undefined || type.length == 0) {
         return next(customErrors.errorMissingParameters);
+    }
+    type = type.toUpperCase();
+    if(type != 'ADMIN' || type != 'GUEST' || type != 'STUDENT' || type != 'TEACHER'){
+        return next(customErrors.errorSynthaxRequest);
     }
 
     let login = firstName.charAt(0) + name.substring(0, 6);

@@ -15,7 +15,7 @@ let ClientError = TypedError({
 });
 
 
-module.exports.errorMissingParameters = ClientError({
+module.exports.errorSynthaxRequest = ClientError({
     title:'Erreur la synthax de la requête n\'est pas correcte.',
     statusCode: 400
 });

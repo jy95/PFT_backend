@@ -510,7 +510,7 @@ function createUserProfil(req, res, next) {
 }
 
 /**
- * @api {post} /api/useUserProfilOnStudents Function to register a list of new students based on a CSV file.
+ * @api {post} /api/useUserProfilOnStudents Apply a profile to a list of students.
  * @apiName useUserProfilOnStudents
  * @apiGroup Admin
  *

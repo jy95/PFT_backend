@@ -17,8 +17,8 @@ CREATE TABLE TFE.years_sections (
 CREATE TABLE TFE.profiles (
     id_profile SERIAL NOT NULL,
     id_year INTEGER NULL REFERENCES TFE.years_sections(id_year_section),
-    name VARCHAR(15) NOT NULL,
-    UNIQUE(name, id_year),
+    name VARCHAR(30) NOT NULL,
+    UNIQUE(name),
     PRIMARY KEY(id_profile)
 );
 

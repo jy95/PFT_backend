@@ -696,9 +696,9 @@ function listUsers(req, res, next) {
  *       "message": "Enjoy",
  *       "data":[
  *           {
- *               "id_profile":1,
- *               "id_year":1,
- *               "name":"1BBM"
+ *               "id_profile":  1,
+ *               "id_year": 1,
+ *               "name":    "1BBM"
  *           }
  *       ]
  *   }

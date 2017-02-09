@@ -7,7 +7,7 @@
     "test": "node node_modules/mocha/bin/_mocha test/test.js",
     "startServer": "node launch-server.js",
     "start": "node launch-server.js",
-    "generateDoc" : "node node_modules/apidoc/bin/apidoc -i database/ -o apidoc/"
+    "generateDoc": "node node_modules/apidoc/bin/apidoc -i database/ -o apidoc/"
   },
   "repository": {
     "type": "git",
@@ -34,6 +34,7 @@
     "password-generator": "^2.1.0",
     "pdfmake": "^0.1.25",
     "pg-promise": "^5.5.6",
+    "string": "^3.3.3",
     "supertest": "^3.0.0"
   },
   "devDependencies": {

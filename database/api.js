@@ -5,6 +5,7 @@ let jwt = require('jsonwebtoken');
 let generatePassword = require('password-generator');
 let customErrors = require('./errrors.js');
 let pdfGenerator = require('../script_manager/script_pdf_generator.js');
+let S = require('string');
 
 let options = {
     // Initialization Options
@@ -422,7 +423,7 @@ function registerStudents(req, res, next) {
 
                     return t.one('SELECT id_year_section FROM TFE.years_sections WHERE section = $1 AND year = $2', [l["Orientation"], l["Année"]])
                         .then(function (result) {
-                            let pseudo = l["Prénom Etudiant"].substring(0, 1) + l["Nom Etudiant"].substring(0, 6);
+                            let pseudo = S(S(l["Prénom Etudiant"]).trim().s.substring(0, 1) + S(l["Nom Etudiant"]).trim().s.substring(0, 6)).latinise().s;
                             return t.none('insert into TFE.users(matricule,name,first_name,id_year,email,user_type,login)' +
                                 'values($1,$2,$3,$4,$5,$6,$7)', [l["Matric Info"], l["Nom Etudiant"], l["Prénom Etudiant"], result.id_year_section, l["EMail Etudiant 2"], "STUDENT", pseudo.toLowerCase()]);
                         });
@@ -737,7 +738,7 @@ function createUser(req, res, next) {
         return next(customErrors.errorSynthaxRequest);
     }
 
-    let login = firstName.substring(0, 1) + name.substring(0, 6);
+    let login = S(S(firstName).trim().s.substring(0, 1) + S(name).trim().s.substring(0, 6)).latinise().s;
 
     let email = ( req.body.email == undefined || req.body.email.length == 0 ) ? "" : req.body.email;
     console.log(email);

@@ -33,14 +33,26 @@ const secretToken = process.env.SECRET_TOKEN || "osfdotg654468fd_g,fsdnbvff";
  * @apiParam {String} login Admin's login.
  * @apiParam {String} password Admin's password.
  *
- * @apiSuccess {String} message Success message
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 Error Code
+ *     {
+ *          status: 'error',
+ *          message: "Un message d'erreur"
+ *     }
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *          status: 'error',
+ *          message: "Un message de success",
+ *          token: "UnTokenJWT"
+ *     }
  */
 function signIn(req, res, next) {
 
     let login = req.body.login;
     let password = req.body.password;
 
-    if (login == undefined || login.length == 0 || password == undefined || password.length == 0){
+    if (login == undefined || login.length == 0 || password == undefined || password.length == 0) {
         return next(customErrors.errorMissingParameters);
     }
 
@@ -74,13 +86,32 @@ function signIn(req, res, next) {
  *
  * @apiParam {String} name Name of the software.
  *
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 Error Code
+ *     {
+ *          status: 'error',
+ *          message: "Un message d'erreur"
+ *     }
+ * @apiSuccessExample {csv} Claroline Response:
+ *     HTTP/1.1 200 OK  /api/scriptGenerator/Claroline
+ *     "NomEtudiant","PrenomEtudiant","emailEtudiant","motDePasse"
+ *     "Tesla","Nikola",,"qerubaqodu"
+ *     "Edison","Thomas",,"jebohehumu"
+ * @apiSuccessExample {bat} Windows Response:
+ *     HTTP/1.1 200 OK  /api/scriptGenerator/Windows
+ *     dsadd Tesla /prenom=Nikola /mdp=lanefolame
+ *     dsadd Edison /prenom=Thomas /mdp=fowudumiro
+ * @apiSuccessExample {csv} Nutrilog Response:
+ *     HTTP/1.1 200 OK  /api/scriptGenerator/Nutrilog
+ *     "matricule","user_name","first_name","password"
+ *     "2    ","Edison","Thomas","ciwabayewa"
  */
 function scriptGenerator(req, res, next) {
 
     let software = req.params.name;
     let newresult = [];
 
-    if(software == undefined || software.length == 0){
+    if (software == undefined || software.length == 0) {
         return next(customErrors.errorMissingParameters);
     }
 
@@ -105,7 +136,7 @@ function scriptGenerator(req, res, next) {
                 }
 
                 let queries = newresult.map(function (l) {
-                    return db.none("INSERT INTO TFE.users_access(id_user,id_software,password) VALUES($1,$2,$3)", [ l["id_user"], l["id_software"] , l["password"] ])
+                    return db.none("INSERT INTO TFE.users_access(id_user,id_software,password) VALUES($1,$2,$3)", [l["id_user"], l["id_software"], l["password"]])
                 });
                 return t.batch(queries);
             })
@@ -131,21 +162,27 @@ function scriptGenerator(req, res, next) {
  * @apiGroup Admin
  *
  * @apiSuccess {File} A PDF file with all the logins/passwords found.
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 Error Code
+ *     {
+ *          status: 'error',
+ *          message: "Un message d'erreur"
+ *     }
  */
-function allUserLoginsInfo(req,res, next) {
+function allUserLoginsInfo(req, res, next) {
 
     db.many("SELECT u.login AS userLogin, ua.password AS softwarePassword, s.name AS softwareName " +
-            "FROM TFE.users u JOIN TFE.users_access ua USING(id_user) JOIN TFE.softwares s USING(id_software) " +
-            "WHERE s.deleted IS FALSE")
+        "FROM TFE.users u JOIN TFE.users_access ua USING(id_user) JOIN TFE.softwares s USING(id_software) " +
+        "WHERE s.deleted IS FALSE")
         .then(function (data) {
 
-            pdfGenerator.generateFile("ALL_USERS",data, function (err,pdfDoc) {
+            pdfGenerator.generateFile("ALL_USERS", data, function (err, pdfDoc) {
                 if (err) {
                     console.log(err);
                     return next(customErrors.errorScriptGeneration);
-                }  else {
+                } else {
                     res.set('content-type', 'application/pdf');
-                    res.setHeader('Content-disposition', 'attachment; filename=' + 'Logins_' + "ALL_USERS" +  '.pdf');
+                    res.setHeader('Content-disposition', 'attachment; filename=' + 'Logins_' + "ALL_USERS" + '.pdf');
 
                     // Create the PDF and pipe it to the response object.
                     pdfDoc.pipe(res);
@@ -168,27 +205,33 @@ function allUserLoginsInfo(req,res, next) {
  * @apiParam {String} matricule Student's matricule.
  *
  * @apiSuccess {PDF} A PDF file with all the logins/passwords found.
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 Error Code
+ *     {
+ *          status: 'error',
+ *          message: "Un message d'erreur"
+ *     }
  */
 function userloginsInfo(req, res, next) {
 
     let matricule = req.params.matricule;
     db.many("SELECT u.login AS userLogin, ua.password AS softwarePassword, s.name AS softwareName " +
-            "FROM TFE.users u JOIN TFE.users_access ua USING(id_user) JOIN TFE.softwares s USING(id_software) "+
-            " WHERE s.deleted IS FALSE AND u.matricule = $1 ", matricule)
+        "FROM TFE.users u JOIN TFE.users_access ua USING(id_user) JOIN TFE.softwares s USING(id_software) " +
+        " WHERE s.deleted IS FALSE AND u.matricule = $1 ", matricule)
         .then(function (data) {
 
-            pdfGenerator.generateFile(matricule,data, function (err,pdfDoc) {
-               if (err) {
-                   console.log(err);
-                   return next(customErrors.errorScriptGeneration);
-               }  else {
-                   res.set('content-type', 'application/pdf');
-                   res.setHeader('Content-disposition', 'attachment; filename=' + 'Logins_' + matricule +  '.pdf');
+            pdfGenerator.generateFile(matricule, data, function (err, pdfDoc) {
+                if (err) {
+                    console.log(err);
+                    return next(customErrors.errorScriptGeneration);
+                } else {
+                    res.set('content-type', 'application/pdf');
+                    res.setHeader('Content-disposition', 'attachment; filename=' + 'Logins_' + matricule + '.pdf');
 
-                   // Create the PDF and pipe it to the response object.
-                   pdfDoc.pipe(res);
-                   pdfDoc.end();
-               }
+                    // Create the PDF and pipe it to the response object.
+                    pdfDoc.pipe(res);
+                    pdfDoc.end();
+                }
             });
 
         })
@@ -205,13 +248,24 @@ function userloginsInfo(req, res, next) {
  *
  * @apiParam {String} name Name of the new software.
  *
- * @apiSuccess {String} Success message.
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 Error Code
+ *     {
+ *          status: 'error',
+ *          message: "Un message d'erreur"
+ *     }
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *          status: 'error',
+ *          message: "Un message de success",
+ *     }
  */
 function addSoftware(req, res, next) {
 
     let name = req.body.name;
 
-    if(name == undefined || name.length == 0){
+    if (name == undefined || name.length == 0) {
         return next(customErrors.errorMissingParameters);
     }
 
@@ -226,7 +280,11 @@ function addSoftware(req, res, next) {
         })
         .catch(function (err) {
             console.log(err);
-            return next(customErrors.createServerError({title:'errorCreateSoftware', statusCode:500, message:'Erreur à la création d\'un software'}));
+            return next(customErrors.createServerError({
+                title: 'errorCreateSoftware',
+                statusCode: 500,
+                message: 'Erreur à la création d\'un software'
+            }));
         });
 }
 
@@ -237,13 +295,24 @@ function addSoftware(req, res, next) {
  *
  * @apiParam {String} name Name of the software to be removed.
  *
- * @apiSuccess {String} Message of success.
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 Error Code
+ *     {
+ *          status: 'error',
+ *          message: "Un message d'erreur"
+ *     }
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *          status: 'error',
+ *          message: "Un message de success",
+ *     }
  */
 function removeSoftware(req, res, next) {
 
     let id = req.body.id;
 
-    if(id == undefined || id == null){
+    if (id == undefined || id == null) {
         return next(customErrors.errorMissingParameters);
     }
 
@@ -270,14 +339,25 @@ function removeSoftware(req, res, next) {
  *
  * @apiParam {String} name New name of the software.
  *
- * @apiSuccess {String} Message of success.
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 Error Code
+ *     {
+ *          status: 'error',
+ *          message: "Un message d'erreur"
+ *     }
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *          status: 'error',
+ *          message: "Un message de success",
+ *     }
  */
 function updateSoftware(req, res, next) {
 
     let name = req.body.name;
     let id = req.body.id;
 
-    if(name == undefined || name.length == 0 || id == undefined || id == null){
+    if (name == undefined || name.length == 0 || id == undefined || id == null) {
         return next(customErrors.errorMissingParameters);
     }
 
@@ -304,7 +384,18 @@ function updateSoftware(req, res, next) {
  *
  * @apiParam {File} csvFile The CSV file containing the list of new students.
  *
- * @apiSuccess {String} Message of success.
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 Error Code
+ *     {
+ *          status: 'error',
+ *          message: "Un message d'erreur"
+ *     }
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *          status: 'error',
+ *          message: "Un message de success",
+ *     }
  */
 function registerStudents(req, res, next) {
 
@@ -349,7 +440,11 @@ function registerStudents(req, res, next) {
         })
         .on('error', (err) => {
             console.log(err);
-            return next(customErrors.createServerError({title:'errorRegisterStudent', statusCode:500, message:'Erreur à l\'inscription des étudiants'}));
+            return next(customErrors.createServerError({
+                title: 'errorRegisterStudent',
+                statusCode: 500,
+                message: 'Erreur à l\'inscription des étudiants'
+            }));
         })
 
 }
@@ -360,10 +455,21 @@ function registerStudents(req, res, next) {
  * @apiGroup Admin
  *
  * @apiParam {String} name Name of the new profile.
- * @apiParam {Number} id_year Database id of a specific year of the school.
+ * @apiParam {Number} [id_year=NULL] Database id of a specific year of the school.
  * @apiParam {Number[]} software List of the id software included in that new profile.
  *
- * @apiSuccess {String} Message of success.
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 Error Code
+ *     {
+ *          status: 'error',
+ *          message: "Un message d'erreur"
+ *     }
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *          status: 'error',
+ *          message: "Un message de success",
+ *     }
  */
 function createUserProfil(req, res, next) {
 
@@ -394,7 +500,11 @@ function createUserProfil(req, res, next) {
             })
             .catch(function (err) {
                 console.log(err);
-                return next(customErrors.createServerError({title:'errorCreateProfil', statusCode:500, message:'Erreur à la création d\'un profil utilisateur'}));
+                return next(customErrors.createServerError({
+                    title: 'errorCreateProfil',
+                    statusCode: 500,
+                    message: 'Erreur à la création d\'un profil utilisateur'
+                }));
             });
     }
 }
@@ -407,20 +517,31 @@ function createUserProfil(req, res, next) {
  * @apiParam {Number} id_profil The id of the profile to apply.
  * @apiParam {Number[]} studentIds List of the id students receiving the profile.
  *
- * @apiSuccess {String} Message of success.
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 Error Code
+ *     {
+ *          status: 'error',
+ *          message: "Un message d'erreur"
+ *     }
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *          status: 'error',
+ *          message: "Un message de success",
+ *     }
  */
 function useUserProfilOnStudents(req, res, next) {
 
     let id_profil = req.body.id_profil;
     let studentIds = req.body.studentIds;
 
-    if (studentIds == undefined ||id_profil == undefined) {
+    if (studentIds == undefined || id_profil == undefined) {
         return next(customErrors.errorMissingParameters);
     } else {
 
         db.tx(function (t) {
             let queries = studentIds.map(function (l) {
-                return db.none("UPDATE TFE.users SET id_profile = $1 WHERE id_user = $2", [ parseInt(id_profil), parseInt(l)]);
+                return db.none("UPDATE TFE.users SET id_profile = $1 WHERE id_user = $2", [parseInt(id_profil), parseInt(l)]);
             });
             t.batch(queries);
         }).then(function () {
@@ -442,7 +563,35 @@ function useUserProfilOnStudents(req, res, next) {
  * @apiName listSoftwares
  * @apiGroup Admin
  *
- * @apiSuccess {String} Message of success.
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 Error Code
+ *     {
+ *          status: 'error',
+ *          message: "Un message d'erreur"
+ *     }
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *          "status":"success",
+ *          "message":"Enjoy",
+ *          "data":[
+ *              {
+ *                  "id_software":  1,
+ *                  "name": "Windows",
+ *                  "deleted":  false
+ *              },
+ *              {
+ *                  "id_software":  2,
+ *                  "name": "Claroline",
+ *                  "deleted":  false
+ *              },
+ *              {
+ *                  "id_software":  3,
+ *                  "name": "Nutrilog",
+ *                  "deleted":  false
+ *              }
+ *          ]
+ *      }
  */
 function listSoftwares(req, res, next) {
 
@@ -455,9 +604,9 @@ function listSoftwares(req, res, next) {
                     data: data
                 });
         }).catch(function (err) {
-            console.log(err);
-            return next(customErrors.errorServer);
-        });
+        console.log(err);
+        return next(customErrors.errorServer);
+    });
 
 }
 
@@ -466,7 +615,44 @@ function listSoftwares(req, res, next) {
  * @apiName listUsers
  * @apiGroup Admin
  *
- * @apiSuccess {String} Message of success.
+ * @apiErrorExample {json} Error-Response:
+ *     HTTP/1.1 Error Code
+ *     {
+ *          status: 'error',
+ *          message: "Un message d'erreur"
+ *     }
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *  {
+ *       "status":"success",
+ *       "message":"Enjoy",
+ *       "data":[
+ *           {
+ *               "id_user":  3,
+ *               "id_year":  2,
+ *               "id_profile":   2,
+ *               "matricule":    "21111",
+ *               "name": "Edison",
+ *               "first_name":   "Thomas",
+ *               "login":    "tedison",
+ *               "email":    null,
+ *               "user_type":    "STUDENT",
+ *               "admin_password":   null
+ *           },
+ *           {
+ *               "id_user":  1,
+ *               "id_year":  null,
+ *               "id_profile":   1,
+ *               "matricule":    null,
+ *               "name": "Admin",
+ *               "first_name":   "Ladministrateur",
+ *               "login":    "Admin00",
+ *               "email":    null,
+ *               "user_type":    "Admin",
+ *               "admin_password":   "admin"
+ *           }
+ *       ]
+ *   }
  */
 function listUsers(req, res, next) {
 
@@ -479,9 +665,9 @@ function listUsers(req, res, next) {
                     data: data
                 });
         }).catch(function (err) {
-            console.log(err);
-            return next(customErrors.errorServer);
-        });
+        console.log(err);
+        return next(customErrors.errorServer);
+    });
 }
 
 /**
@@ -502,9 +688,9 @@ function listProfils(req, res, next) {
                     data: data
                 });
         }).catch(function (err) {
-            console.log(err);
-            return next(customErrors.errorServer);
-        });
+        console.log(err);
+        return next(customErrors.errorServer);
+    });
 }
 
 /**
@@ -517,13 +703,13 @@ function listProfils(req, res, next) {
  * @apiParam {String} type The type of the new user (STUDENT, TEACHER, GUEST).
  *
  */
-function createUser(req,res,next) {
+function createUser(req, res, next) {
 
     let name = req.body.name;
     let firstName = req.body.firstName;
     let type = req.body.type;
 
-    if (firstName == undefined || firstName.length == 0 || name == undefined || name.length == 0 || type == undefined || type.length == 0){
+    if (firstName == undefined || firstName.length == 0 || name == undefined || name.length == 0 || type == undefined || type.length == 0) {
         return next(customErrors.errorMissingParameters);
     }
 
@@ -531,15 +717,15 @@ function createUser(req,res,next) {
 
     let email = ( req.body.email == undefined || req.body.email.length == 0 ) ? "" : req.body.email;
     console.log(email);
-    let params = [name,firstName,type,login,email];
+    let params = [name, firstName, type, login, email];
 
     db.one("INSERT INTO TFE.users(name,first_name,user_type,login,email) VALUES($1,$2,$3,$4,$5) RETURNING id_user", params)
         .then(function (user) {
-            db.one("SELECT id_profile FROM TFE.profiles WHERE name = $1","GUEST")
+            db.one("SELECT id_profile FROM TFE.profiles WHERE name = $1", "GUEST")
                 .then(function (profil) {
                     req.body.id_profil = parseInt(profil.id_profile);
-                    req.body.studentIds = [ parseInt(user.id_user) ];
-                    useUserProfilOnStudents(req,res,next);
+                    req.body.studentIds = [parseInt(user.id_user)];
+                    useUserProfilOnStudents(req, res, next);
                     return null;
                 });
         })

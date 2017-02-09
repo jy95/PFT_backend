@@ -18,7 +18,7 @@ describe('Server tests : ', function () {
                 console.error("Server is not found");
                 console.error("Message : " + e.message);
                 console.error("Dossier courant : " + __dirname);
-                process.exit(e.code);
+                done(e);
             }
 
         });
@@ -28,7 +28,6 @@ describe('Server tests : ', function () {
 
         let auth = {};
         before(loginUser(auth));
-        console.log(auth);
 
         it('Create a software', function (done) {
             request(app)

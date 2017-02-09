@@ -32,12 +32,15 @@ app.use(function (req, res, next) {
 
 // SECURITY : IF SUCCESS => req.user NOT undefined
 // ONLY 2 path that doesn't required token
+// CURRENTLY DISABLED BECAUSE CLIENT HASN'T IMPLEMENTED IT IN HIS SIDE
+/*
 app.use(jwt({secret: secretToken}).unless(
     {path: [
         '/api/UserloginsInfo/:matricule',
         '/api/signIn'
     ]}
 ));
+*/
 
 
 // error handlers

@@ -55,7 +55,7 @@ function signIn(req, res, next) {
     let login = req.body.login;
     let password = req.body.password;
 
-    if (login == undefined || login.length == 0 || password == undefined || password.length == 0) {
+    if (S(login).isEmpty() || S(password).isEmpty()) { //S(String) construit un object string js (cf package "string")
         return next(customErrors.errorMissingParameters);
     }
 
@@ -114,7 +114,7 @@ function scriptGenerator(req, res, next) {
     let software = req.params.name;
     let newresult = [];
 
-    if (software == undefined || software.length == 0) {
+    if (S(software).isEmpty()) {
         return next(customErrors.errorMissingParameters);
     }
 
@@ -218,6 +218,11 @@ function allUserLoginsInfo(req, res, next) {
 function userloginsInfo(req, res, next) {
 
     let matricule = req.params.matricule;
+
+    if(S(matricule).isEmpty()){
+      return next(customErrors.errorMissingParameters);
+    }
+
     db.many("SELECT u.login AS userLogin, ua.password AS softwarePassword, s.name AS softwareName " +
         "FROM TFE.users u JOIN TFE.users_access ua USING(id_user) JOIN TFE.softwares s USING(id_software) " +
         " WHERE s.deleted IS FALSE AND u.matricule = $1 ", matricule)
@@ -268,7 +273,7 @@ function addSoftware(req, res, next) {
 
     let name = req.body.name;
 
-    if (name == undefined || name.length == 0) {
+    if (S(name).isEmpty()) {
         return next(customErrors.errorMissingParameters);
     }
 
@@ -315,7 +320,7 @@ function removeSoftware(req, res, next) {
 
     let id = req.body.id;
 
-    if (id == undefined || id == null) {
+    if (S(id).isEmpty()) {
         return next(customErrors.errorMissingParameters);
     }
 
@@ -360,7 +365,7 @@ function updateSoftware(req, res, next) {
     let name = req.body.name;
     let id = req.body.id;
 
-    if (name == undefined || name.length == 0 || id == undefined || id == null) {
+    if (S(name).isEmpty() || S(id).isEmpty()) {
         return next(customErrors.errorMissingParameters);
     }
 
@@ -480,7 +485,7 @@ function createUserProfil(req, res, next) {
     let id_year = (req.body.id_year == undefined) ? null : req.body.id_year;
     let softwareList = req.body.software;
 
-    if (softwareList == undefined || name == undefined || name.length == 0) {
+    if (softwareList == undefined || S(name).isEmpty()) {
         return next(customErrors.errorMissingParameters);
     } else {
 
@@ -538,7 +543,7 @@ function useUserProfilOnStudents(req, res, next) {
     let id_profil = req.body.id_profil;
     let studentIds = req.body.studentIds;
 
-    if (studentIds == undefined || id_profil == undefined) {
+    if (studentIds == undefined || S(id_profil).isEmpty()) {
         return next(customErrors.errorMissingParameters);
     } else {
 
@@ -730,7 +735,7 @@ function createUser(req, res, next) {
     let firstName = req.body.firstName;
     let type = req.body.type;
 
-    if (firstName == undefined || firstName.length == 0 || name == undefined || name.length == 0 || type == undefined || type.length == 0) {
+    if (S(firstName).isEmpty() || S(name).isEmpty() || S(type).isEmpty()) {
         return next(customErrors.errorMissingParameters);
     }
     type = type.toUpperCase();

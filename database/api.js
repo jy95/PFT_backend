@@ -23,6 +23,8 @@ let connectionOptions = {
 
 let db = pgp(connectionOptions);
 
+const type_array = ['ADMIN' , 'GUEST' , 'STUDENT' , 'TEACHER'];
+
 const secretToken = process.env.SECRET_TOKEN || "osfdotg654468fd_g,fsdnbvff";
 
 /**
@@ -420,7 +422,7 @@ function registerStudents(req, res, next) {
 
                     return t.one('SELECT id_year_section FROM TFE.years_sections WHERE section = $1 AND year = $2', [l["Orientation"], l["Année"]])
                         .then(function (result) {
-                            let pseudo = l["Prénom Etudiant"].charAt(0) + l["Nom Etudiant"].substring(0, 6);
+                            let pseudo = l["Prénom Etudiant"].substring(0, 1) + l["Nom Etudiant"].substring(0, 6);
                             return t.none('insert into TFE.users(matricule,name,first_name,id_year,email,user_type,login)' +
                                 'values($1,$2,$3,$4,$5,$6,$7)', [l["Matric Info"], l["Nom Etudiant"], l["Prénom Etudiant"], result.id_year_section, l["EMail Etudiant 2"], "STUDENT", pseudo.toLowerCase()]);
                         });
@@ -713,11 +715,11 @@ function createUser(req, res, next) {
         return next(customErrors.errorMissingParameters);
     }
     type = type.toUpperCase();
-    if(type != 'ADMIN' || type != 'GUEST' || type != 'STUDENT' || type != 'TEACHER'){
+    if(type_array.indexOf(type) == -1 ){
         return next(customErrors.errorSynthaxRequest);
     }
 
-    let login = firstName.charAt(0) + name.substring(0, 6);
+    let login = firstName.substring(0, 1) + name.substring(0, 6);
 
     let email = ( req.body.email == undefined || req.body.email.length == 0 ) ? "" : req.body.email;
     console.log(email);

@@ -91,7 +91,7 @@ function scriptGenerator(req, res, next) {
             "JOIN TFE.profiles_softwares ps ON ps.id_profile = p.id_profile " +
             "JOIN TFE.softwares s USING(id_software) " +
             "WHERE s.name = $1 " +
-            "AND s.deleted IS FALSE"
+            "AND s.deleted IS FALSE" +
             "AND u.id_user NOT IN ( " +
             " SELECT ua.id_user " +
             "FROM TFE.users_access ua " +

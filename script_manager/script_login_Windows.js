@@ -1,5 +1,4 @@
 let fs = require('fs');
-let db = require("../database/api.js");
 
 module.exports.handleRequest = function (data, callback) {
 

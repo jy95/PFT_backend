@@ -1,6 +1,5 @@
 let json2csv = require('json2csv');
 let fs = require('fs');
-let db = require("../database/api.js");
 
 module.exports.handleRequest = function (data, callback) {
 

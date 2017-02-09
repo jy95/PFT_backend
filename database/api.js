@@ -407,6 +407,12 @@ function updateSoftware(req, res, next) {
  */
 function registerStudents(req, res, next) {
 
+    console.log("INCOMMING MESSAGE");
+    console.log("LE CONTENU DE LA REQUETE");
+    console.log(req.body);
+    console.log("CE QUE EXPRESS RECOIT");
+    console.log(req.files);
+
     let sampleFile;
 
     if (!req.files) {

@@ -3,7 +3,7 @@ CREATE USER custom_user WITH PASSWORD 'custom_pass';
 CREATE DATABASE custom_db OWNER custom_user;
 -- DANS LA CONSOLE DE CETTE DB
 \c custom_db;
-CREATE SCHEMA TFE
+CREATE SCHEMA TFE;
 -- REMPLIR LA DB
 
 CREATE TABLE TFE.years_sections (
@@ -25,6 +25,7 @@ CREATE TABLE TFE.profiles (
 CREATE TABLE TFE.softwares (
     id_software SERIAL NOT NULL,
     name VARCHAR(50) NOT NULL,
+    deleted BOOLEAN NOT NULL DEFAULT FALSE,
     UNIQUE(name),
     PRIMARY KEY(id_software)
 );

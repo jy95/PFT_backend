@@ -91,6 +91,7 @@ function scriptGenerator(req, res, next) {
             "JOIN TFE.profiles_softwares ps ON ps.id_profile = p.id_profile " +
             "JOIN TFE.softwares s USING(id_software) " +
             "WHERE s.name = $1 " +
+            "AND s.deleted IS FALSE"
             "AND u.id_user NOT IN ( " +
             " SELECT ua.id_user " +
             "FROM TFE.users_access ua " +
@@ -133,7 +134,9 @@ function scriptGenerator(req, res, next) {
  */
 function allUserLoginsInfo(req,res, next) {
 
-    db.many("SELECT u.login AS userLogin, ua.password AS softwarePassword, s.name AS softwareName FROM TFE.users u JOIN TFE.users_access ua USING(id_user) JOIN TFE.softwares s USING(id_software) ")
+    db.many("SELECT u.login AS userLogin, ua.password AS softwarePassword, s.name AS softwareName " +
+            "FROM TFE.users u JOIN TFE.users_access ua USING(id_user) JOIN TFE.softwares s USING(id_software) " +
+            "WHERE s.deleted IS FALSE")
         .then(function (data) {
 
             pdfGenerator.generateFile("ALL_USERS",data, function (err,pdfDoc) {
@@ -169,7 +172,9 @@ function allUserLoginsInfo(req,res, next) {
 function userloginsInfo(req, res, next) {
 
     let matricule = req.params.matricule;
-    db.many("SELECT u.login AS userLogin, ua.password AS softwarePassword, s.name AS softwareName FROM TFE.users u JOIN TFE.users_access ua USING(id_user) JOIN TFE.softwares s USING(id_software) WHERE u.matricule = $1", matricule)
+    db.many("SELECT u.login AS userLogin, ua.password AS softwarePassword, s.name AS softwareName " +
+            "FROM TFE.users u JOIN TFE.users_access ua USING(id_user) JOIN TFE.softwares s USING(id_software) "+
+            " WHERE s.deleted IS FALSE AND u.matricule = $1 ", matricule)
         .then(function (data) {
 
             pdfGenerator.generateFile(matricule,data, function (err,pdfDoc) {
@@ -226,7 +231,7 @@ function addSoftware(req, res, next) {
 }
 
 /**
- * @api {post} /api/removeSoftware Function to remove an existing software in the database.
+ * @api {post} /api/removeSoftware Function to mark as deleted an existing software in the database.
  * @apiName removeSoftware
  * @apiGroup Admin
  *
@@ -242,13 +247,13 @@ function removeSoftware(req, res, next) {
         return next(customErrors.errorMissingParameters);
     }
 
-    db.result('delete from TFE.softwares where id_software = $1', parseInt(id))
-        .then(function (result) {
+    db.none('UPDATE TFE.softwares SET deleted=TRUE WHERE id_software = $1', parseInt(id)) //TODO check
+        .then(function () {
 
             res.status(200)
                 .json({
                     status: 'success',
-                    message: `Removed ${result.rowCount} sofware`
+                    message: `Removed sofware`
                 });
 
         })
@@ -441,7 +446,7 @@ function useUserProfilOnStudents(req, res, next) {
  */
 function listSoftwares(req, res, next) {
 
-    db.any("SELECT * FROM TFE.softwares")
+    db.any("SELECT * FROM TFE.softwares WHERE deleted IS FALSE")
         .then(function (data) {
             res.status(200)
                 .json({

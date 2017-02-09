@@ -1,0 +1,41 @@
+
+# GitLab CI Docker Image
+image: node:6.9.5
+
+# GitLab CI Docker postgresql
+services:
+      - postgres:9.3.15
+
+# Test - Run tests
+stages:
+  - test
+# Configuration
+variables:
+  # Configure postgres service (https://hub.docker.com/_/postgres/)
+  POSTGRES_DB: custom_db
+  POSTGRES_USER: custom_user
+  POSTGRES_PASSWORD: custom_pass
+
+# Job: Connect
+# Create a database and inject sql queries from file
+connect:
+  image: postgres
+  stage: test
+  script:
+  # official way to provide password to psql: http://www.postgresql.org/docs/9.3/static/libpq-envars.html
+  - export PGPASSWORD=$POSTGRES_PASSWORD
+  - psql -h "postgres" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f db/db_initialization.sql
+
+# Job: Test
+# Installs npm packages
+# Run tests against our application
+test:
+  stage: test
+  script:
+    - npm install
+    - npm install --only=dev
+    - npm test
+  # Cache Settings
+  cache:
+    paths:
+     - node_modules/

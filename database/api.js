@@ -25,6 +25,16 @@ let db = pgp(connectionOptions);
 
 const secretToken = process.env.SECRET_TOKEN || "osfdotg654468fd_g,fsdnbvff";
 
+/**
+ * @api {post} /api/signIn Function for an admin to sign in
+ * @apiName signIn
+ * @apiGroup Admin
+ *
+ * @apiParam {String} login Admin's login.
+ * @apiParam {String} password Admin's password.
+ *
+ * @apiSuccess {String} message Success message
+ */
 function signIn(req, res, next) {
 
     let login = req.body.login;
@@ -57,6 +67,14 @@ function signIn(req, res, next) {
         });
 }
 
+/**
+ * @api {get} /api/scriptGenerator/:name Request login script for a software
+ * @apiName scriptGenerator
+ * @apiGroup Admin
+ *
+ * @apiParam {String} name Name of the software.
+ *
+ */
 function scriptGenerator(req, res, next) {
 
     let software = req.params.name;
@@ -106,6 +124,13 @@ function scriptGenerator(req, res, next) {
 
 }
 
+/**
+ * @api {get} /api/AllUserLoginsInfo Request for all logins/passwords of all students.
+ * @apiName allUserLoginsInfo
+ * @apiGroup Admin
+ *
+ * @apiSuccess {File} A PDF file with all the logins/passwords found.
+ */
 function allUserLoginsInfo(req,res, next) {
 
     db.many("SELECT u.login AS userLogin, ua.password AS softwarePassword, s.name AS softwareName FROM TFE.users u JOIN TFE.users_access ua USING(id_user) JOIN TFE.softwares s USING(id_software) ")
@@ -132,6 +157,15 @@ function allUserLoginsInfo(req,res, next) {
         });
 }
 
+/**
+ * @api {get} /api/UserloginsInfo/:id Request for all logins/passwords of a student.
+ * @apiName userloginsInfo
+ * @apiGroup User
+ *
+ * @apiParam {String} matricule Student's matricule.
+ *
+ * @apiSuccess {PDF} A PDF file with all the logins/passwords found.
+ */
 function userloginsInfo(req, res, next) {
 
     let matricule = req.params.matricule;
@@ -159,6 +193,15 @@ function userloginsInfo(req, res, next) {
         });
 }
 
+/**
+ * @api {post} /api/addSoftware Function to add a new software in the database.
+ * @apiName addSoftware
+ * @apiGroup Admin
+ *
+ * @apiParam {String} name Name of the new software.
+ *
+ * @apiSuccess {String} Success message.
+ */
 function addSoftware(req, res, next) {
 
     let name = req.body.name;
@@ -182,6 +225,15 @@ function addSoftware(req, res, next) {
         });
 }
 
+/**
+ * @api {post} /api/removeSoftware Function to remove an existing software in the database.
+ * @apiName removeSoftware
+ * @apiGroup Admin
+ *
+ * @apiParam {String} name Name of the software to be removed.
+ *
+ * @apiSuccess {String} Message of success.
+ */
 function removeSoftware(req, res, next) {
 
     let id = req.body.id;
@@ -206,6 +258,15 @@ function removeSoftware(req, res, next) {
         });
 }
 
+/**
+ * @api {post} /api/updateSoftware Function to update an existing software in the database.
+ * @apiName updateSoftware
+ * @apiGroup Admin
+ *
+ * @apiParam {String} name New name of the software.
+ *
+ * @apiSuccess {String} Message of success.
+ */
 function updateSoftware(req, res, next) {
 
     let name = req.body.name;
@@ -231,6 +292,15 @@ function updateSoftware(req, res, next) {
 
 }
 
+/**
+ * @api {post} /api/registerStudents Function to register a list of new students based on a CSV file.
+ * @apiName registerStudents
+ * @apiGroup Admin
+ *
+ * @apiParam {File} csvFile The CSV file containing the list of new students.
+ *
+ * @apiSuccess {String} Message of success.
+ */
 function registerStudents(req, res, next) {
 
     let sampleFile;
@@ -279,13 +349,24 @@ function registerStudents(req, res, next) {
 
 }
 
+/**
+ * @api {post} /api/createUserProfil Function to create a new user profile.
+ * @apiName createUserProfil
+ * @apiGroup Admin
+ *
+ * @apiParam {String} name Name of the new profile.
+ * @apiParam {Number} id_year Database id of a specific year of the school.
+ * @apiParam (Array Number} software List of the id software included in that new profile.
+ *
+ * @apiSuccess {String} Message of success.
+ */
 function createUserProfil(req, res, next) {
 
     let name = req.body.name;
     let id_year = (req.body.id_year == undefined) ? null : req.body.id_year;
     let softwareList = req.body.software;
 
-    if (softwareList == undefined) {
+    if (softwareList == undefined || name == undefined || name.length == 0) {
         return next(customErrors.errorMissingParameters);
     } else {
 
@@ -313,6 +394,16 @@ function createUserProfil(req, res, next) {
     }
 }
 
+/**
+ * @api {post} /api/useUserProfilOnStudents Function to register a list of new students based on a CSV file.
+ * @apiName registerStudents
+ * @apiGroup Admin
+ *
+ * @apiParam {Number} id_profil The id of the profile to apply.
+ * @apiParam {Array Number} studentIds List of the id students receiving the profile.
+ *
+ * @apiSuccess {String} Message of success.
+ */
 function useUserProfilOnStudents(req, res, next) {
 
     let id_profil = req.body.id_profil;
@@ -341,6 +432,13 @@ function useUserProfilOnStudents(req, res, next) {
     }
 }
 
+/**
+ * @api {get} /api/listSoftwares Request a list of all the softwares.
+ * @apiName listSoftwares
+ * @apiGroup Admin
+ *
+ * @apiSuccess {String} Message of success.
+ */
 function listSoftwares(req, res, next) {
 
     db.any("SELECT * FROM TFE.softwares")
@@ -358,6 +456,13 @@ function listSoftwares(req, res, next) {
 
 }
 
+/**
+ * @api {get} /api/listUsers Request a list of all the users.
+ * @apiName listUsers
+ * @apiGroup Admin
+ *
+ * @apiSuccess {String} Message of success.
+ */
 function listUsers(req, res, next) {
 
     db.any("SELECT * FROM TFE.users")
@@ -374,6 +479,13 @@ function listUsers(req, res, next) {
         });
 }
 
+/**
+ * @api {get} /api/listProfils Request a list of all the users.
+ * @apiName listProfils
+ * @apiGroup Admin
+ *
+ * @apiSuccess {String} Message of success.
+ */
 function listProfils(req, res, next) {
 
     db.any("SELECT * FROM TFE.profiles")
@@ -390,6 +502,16 @@ function listProfils(req, res, next) {
         });
 }
 
+/**
+ * @api {post} /api/createUser Function to register a new user.
+ * @apiName createUser
+ * @apiGroup Admin
+ *
+ * @apiParam {String} name The name of the new user.
+ * @apiParam {String} firstName The first name of the new user.
+ * @apiParam {String} type The type of the new user (STUDENT, TEACHER, GUEST).
+ *
+ */
 function createUser(req,res,next) {
 
     let name = req.body.name;

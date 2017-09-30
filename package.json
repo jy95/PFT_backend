@@ -7,7 +7,9 @@
     "test": "node node_modules/mocha/bin/_mocha test/test.js",
     "startServer": "node launch-server.js",
     "start": "node launch-server.js",
-    "generateDoc": "node node_modules/apidoc/bin/apidoc -i database/ -o apidoc/"
+    "generateDoc": "node node_modules/apidoc/bin/apidoc -i database/ -o apidoc/",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "repository": {
     "type": "git",
@@ -35,11 +37,13 @@
     "pdfmake": "^0.1.25",
     "pg-promise": "^5.5.6",
     "string": "^3.3.3",
-    "supertest": "^3.0.0"
+    "supertest": "^3.0.0",
+    "snyk": "^1.41.1"
   },
   "devDependencies": {
     "apidoc": "^0.17.5",
     "mocha": "^3.2.0",
     "mocha-lcov-reporter": "^1.2.0"
-  }
+  },
+  "snyk": true
 }
